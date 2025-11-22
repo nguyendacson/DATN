@@ -35,8 +35,6 @@ class TokenManager @Inject constructor(
     }
 
     suspend fun clearTokens(){
-        context.dataStore.edit {
-            it.clear()
-        }
+        context.dataStore.edit { it.clear() }
     }
 }

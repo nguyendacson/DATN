@@ -1,14 +1,17 @@
 package com.example.movieseeme.data.local
 
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class SessionManager @Inject constructor() {
-    private  val _isLoggedOut = MutableSharedFlow<Boolean>()
-    val isLoggedOut: SharedFlow<Boolean> = _isLoggedOut
+    private val _isLoggedOut = MutableStateFlow(false)
+    val isLoggedOut = _isLoggedOut
 
-    suspend fun logout(){
-        _isLoggedOut.emit(true)
+    fun logout() {
+        _isLoggedOut.value = true
+    }
+
+    fun resetLogout() {
+        _isLoggedOut.value = false
     }
 }

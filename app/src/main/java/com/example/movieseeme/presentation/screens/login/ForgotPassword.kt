@@ -27,22 +27,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.movieseeme.data.remote.model.auth.forgot_password.ResetPassRequest
 import com.example.movieseeme.presentation.components.CustomButton
-import com.example.movieseeme.presentation.components.DirectionalShadowTextField
 import com.example.movieseeme.presentation.components.TextErrorInput
+import com.example.movieseeme.presentation.components.user.ShadowTextField
 import com.example.movieseeme.presentation.theme.extension.titleHeader
-import com.example.movieseeme.presentation.viewmodels.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
 
 
 @Composable
 fun ForgotPassword(
-    viewModel: UserViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel,
     onDismiss: () -> Unit = {}
 ) {
-    BackHandler(enabled = true) { viewModel.setShowForgotPassword(false) }
-    val uiState by viewModel.uiState.collectAsState()
+    BackHandler(enabled = true) { authViewModel.setShowForgotPassword(false) }
+    val uiState by authViewModel.uiState.collectAsState()
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -67,9 +66,9 @@ fun ForgotPassword(
                 verticalArrangement = Arrangement.Center,
             ) {
                 if (uiState.sendEmail) {
-                    InputNewPassword(viewModel = viewModel)
+                    InputNewPassword(authViewModel = authViewModel)
                 } else {
-                    SendEmail(viewModel = viewModel)
+                    SendEmail(authViewModel = authViewModel)
                 }
             }
         }
@@ -78,20 +77,20 @@ fun ForgotPassword(
 }
 
 @Composable
-fun SendEmail(viewModel: UserViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
+fun SendEmail(authViewModel: AuthViewModel) {
+    val uiState by authViewModel.uiState.collectAsState()
 
     Text(
-        text = "Enter email to reset password",
+        text = "Nhập email để lấy lại mật khẩu",
         style = MaterialTheme.typography.titleHeader.copy(fontSize = 18.sp)
     )
 
     Spacer(modifier = Modifier.size(16.dp))
 
     Column(modifier = Modifier.padding(horizontal = 10.dp)) {
-        DirectionalShadowTextField(
+        ShadowTextField(
             value = uiState.email,
-            onValueChange = viewModel::onEmailChange,
+            onValueChange = authViewModel::onEmailChange,
             icon = false,
             placeholder = "Email",
             isError = uiState.isEmailError
@@ -100,7 +99,7 @@ fun SendEmail(viewModel: UserViewModel) {
             Spacer(modifier = Modifier.height(5.dp))
             TextErrorInput(
                 modifier = Modifier.align(Alignment.Start),
-                title = "*Least 8 characters"
+                title = "* Sai định dạng"
             )
         }
     }
@@ -109,9 +108,9 @@ fun SendEmail(viewModel: UserViewModel) {
 
     CustomButton(
         modifier = Modifier.size(width = 180.dp, height = 40.dp),
-        value = "Send Email",
+        value = "Xác nhận",
         onClick = {
-            viewModel.forgotPassword(uiState.email)
+            authViewModel.forgotPassword(uiState.email)
         },
         icon = false,
         isBold = true,
@@ -120,9 +119,9 @@ fun SendEmail(viewModel: UserViewModel) {
 }
 
 @Composable
-fun InputNewPassword(viewModel: UserViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
-    BackHandler(enabled = true) { viewModel.setSendEmail(false) }
+fun InputNewPassword(authViewModel: AuthViewModel) {
+    val uiState by authViewModel.uiState.collectAsState()
+    BackHandler(enabled = true) { authViewModel.setSendEmail(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -130,7 +129,7 @@ fun InputNewPassword(viewModel: UserViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
         IconButton(
-            onClick = { viewModel.setSendEmail(false) },
+            onClick = { authViewModel.setSendEmail(false) },
             modifier = Modifier.align(Alignment.Start)
         ) {
             Icon(
@@ -142,35 +141,35 @@ fun InputNewPassword(viewModel: UserViewModel) {
 
         Spacer(modifier = Modifier.size(10.dp))
         Text(
-            text = "Enter email to reset password",
+            text = "Nhập mã và mật khẩu mới",
             style = MaterialTheme.typography.titleHeader.copy(fontSize = 18.sp)
         )
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        DirectionalShadowTextField(
+        ShadowTextField(
             value = uiState.keyResetPass,
-            onValueChange = viewModel::onKeyResetPassChange,
+            onValueChange = authViewModel::onKeyResetPassChange,
             icon = false,
-            placeholder = "Key",
+            placeholder = "Mã xác nhận",
             isError = false
         )
 
         Spacer(modifier = Modifier.size(16.dp))
 
         Column(modifier = Modifier.padding(horizontal = 10.dp)) {
-            DirectionalShadowTextField(
+            ShadowTextField(
                 value = uiState.password,
-                onValueChange = viewModel::onPasswordChange,
+                onValueChange = authViewModel::onPasswordChange,
                 icon = true,
-                placeholder = "New password",
+                placeholder = "Mật khẩu",
                 isError = uiState.isPasswordError
             )
             if (uiState.isPasswordError) {
                 Spacer(modifier = Modifier.height(5.dp))
                 TextErrorInput(
                     modifier = Modifier.align(Alignment.Start),
-                    title = "*Least 8 characters"
+                    title = "* Hơn 8 kí tự"
                 )
             }
         }
@@ -179,10 +178,13 @@ fun InputNewPassword(viewModel: UserViewModel) {
 
         CustomButton(
             modifier = Modifier.size(width = 180.dp, height = 40.dp),
-            value = "Change password",
+            value = "Xác nhận",
             onClick = {
-                viewModel.resetPassword(
-                    ResetPassRequest(uiState.username, uiState.password)
+                authViewModel.resetPassword(
+                    ResetPassRequest(
+                        uiState.keyResetPass,
+                        uiState.password
+                    )
                 )
             },
             icon = false,

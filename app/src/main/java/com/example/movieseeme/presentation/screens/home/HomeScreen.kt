@@ -1,142 +1,138 @@
-package com.example.movieseeme.presentation.screens.home
-
-import BottomBar
-import HomeMainScreen
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.movieseeme.presentation.components.item_movies.OptionHome
-import com.example.movieseeme.presentation.screens.new_hot.NewHotScreen
-import com.example.movieseeme.presentation.screens.profile.ProfileScreen
-import com.example.movieseeme.presentation.theme.extension.titleHeader
+import com.example.movieseeme.domain.model.enum.HomeTitleFull
+import com.example.movieseeme.presentation.components.LoadingBounce
+import com.example.movieseeme.presentation.components.movies.lazy.HomeBannerPager
+import com.example.movieseeme.presentation.components.movies.lazy.HomeOption
+import com.example.movieseeme.presentation.components.movies.lazy.RowItemImage
+import com.example.movieseeme.presentation.screens.HeaderScreen
+import com.example.movieseeme.presentation.screens.setting_screen.LockScreenOrientationPortrait
+import com.example.movieseeme.presentation.viewmodels.movie.HomeViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    rootNavController: NavController,
-//    viewModel: UserViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel,
+    interactionViewModel: InteractionViewModel,
+    navController: NavController
 ) {
-    val scrollState = rememberLazyListState()
+    LockScreenOrientationPortrait()
+    val movieState by homeViewModel.uiState.collectAsState()
+    val myListState by interactionViewModel.uiStateAction.collectAsState()
 
-    val fakeMovies = List(10) { index ->
-        "https://phimimg.com/upload/vod/20250712-1/e633fbc1b95a988ae58dab0e1f6cf1d6.jpg" // ảnh demo random
+
+    var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(myListState.message) {
+        val msg = myListState.message
+        if (msg != null && msg != toastMessage) {
+            toastMessage = msg
+            showToast = true
+        }
     }
-    val homeNavController = rememberNavController()
 
-    Scaffold(
-        topBar = {
-            Header(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeaderScreen(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(WindowInsets.statusBars.asPaddingValues())
-                    .padding(start = 18.dp),
-                scrollState,
-                search = {})
-        },
-        bottomBar = { BottomBar(navController = homeNavController) }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f))
-        ) {
-            NavHost(
-                navController = homeNavController,
-                startDestination = "home_main"
+                    .padding(start = 15.dp),
+                search = { navController.navigate("search") })
+
+            HomeOption(
+                modifier = Modifier.fillMaxWidth(),
+                navController = navController,
+                homeViewModel = homeViewModel
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val movies by homeViewModel.listMovieHomeFilter.collectAsState()
+            val movieAction by homeViewModel.listMovieAction.collectAsState()
+            val movieAnime by homeViewModel.listMovieAnime.collectAsState()
+            val movieAnique by homeViewModel.listMovieAntique.collectAsState()
+            val movieFantasy by homeViewModel.listMovieFantasy.collectAsState()
+            val movieHistory by homeViewModel.listMovieHistory.collectAsState()
+            val scrollState = rememberLazyListState()
+            val pagerState = rememberPagerState(
+                initialPage = Int.MAX_VALUE / 2,
+                pageCount = { Int.MAX_VALUE }
+            )
+
+            if (movies.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    item {
+                        HomeBannerPager(
+                            pagerState = pagerState,
+                            movies = movies.take(10),
+                            clickMyList = { id ->
+                                interactionViewModel.postMovieToMyList(id)
+                            },
+                            clickPlay = {}
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+
+                    items(HomeTitleFull.entries) { category ->
+                        val movieList = when (category) {
+                            HomeTitleFull.ACTION -> movieAction
+                            HomeTitleFull.CARTOON -> movieAnime
+                            HomeTitleFull.ANTIQUE -> movieAnique
+                            HomeTitleFull.FANTASY -> movieFantasy
+                            HomeTitleFull.HISTORY -> movieHistory
+                        }
+                        RowItemImage(
+                            value = category.nameTitle,
+                            moreClick = { navController.navigate("fullMovie/${category.slug}") },
+                            movies = movieList.take(10)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+                }
+            }
+
+            if (movieState.isLoading) {
+                LoadingBounce()
+            }
+        }
+
+        if (showToast && toastMessage.isNotEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                composable("home_main") { HomeMainScreen(fakeMovies, scrollState) }
-                composable("new_hot") { NewHotScreen() }
-                composable("profile") { ProfileScreen() }
-            }
-        }
-    }
-}
-
-@Composable
-fun Header(
-    modifier: Modifier,
-    scrollState: LazyListState,
-    search: () -> Unit,
-    nameUser: String = "DAC SON"
-) {
-    val offset by remember {
-        derivedStateOf {
-            scrollState.firstVisibleItemScrollOffset.coerceAtMost(100)
-        }
-    }
-    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-//                .offset { IntOffset(x = 0, y = -offset) }
-                .padding(horizontal = 10.dp, vertical = 0.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "For $nameUser",
-                style = MaterialTheme.typography.titleHeader.copy(
-                    fontSize = 18.sp
-                )
-            )
-            IconButton(onClick = search) {
-                Icon(
-                    Icons.Default.Search,
-                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    contentDescription = "search Movie",
+                CustomToast(
+                    value = toastMessage,
+                    onDismiss = {
+                        showToast = false
+                        interactionViewModel.clearMessage() // bây giờ mới reset
+                    }
                 )
             }
-        }
-
-        OptionHome(modifier = Modifier.fillMaxWidth(), click = {})
-
-        Spacer(modifier = Modifier.height(10.dp))
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true, showBackground = true)
-fun View() {
-    MaterialTheme {
-        Box(modifier = Modifier.padding(top = 36.dp)) {
-            HomeScreen(
-                rootNavController = NavController(LocalContext.current)
-            )
         }
     }
 }

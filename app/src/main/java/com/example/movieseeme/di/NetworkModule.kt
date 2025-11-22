@@ -2,6 +2,8 @@ package com.example.movieseeme.di
 
 import com.example.movieseeme.data.local.TokenAuthenticator
 import com.example.movieseeme.data.remote.api.AuthAPI
+import com.example.movieseeme.data.remote.api.MovieAPI
+import com.example.movieseeme.data.remote.api.UserAPI
 import com.example.movieseeme.data.remote.interceptor.AuthInterceptor
 import dagger.Module
 import dagger.Provides
@@ -72,5 +74,19 @@ object NetworkModule {
     @Singleton
     fun provideMainAuthAPI(@Named("main_retrofit") retrofit: Retrofit): AuthAPI {
         return retrofit.create(AuthAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("movie_retrofit")
+    fun provideMainMovieAPI(@Named("main_retrofit") retrofit: Retrofit): MovieAPI {
+        return retrofit.create(MovieAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("user_retrofit")
+    fun provideMainUserAPI(@Named("main_retrofit") retrofit: Retrofit): UserAPI {
+        return retrofit.create(UserAPI::class.java)
     }
 }

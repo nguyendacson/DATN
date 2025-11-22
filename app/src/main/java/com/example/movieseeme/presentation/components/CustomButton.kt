@@ -89,10 +89,40 @@ fun TextErrorInput(modifier: Modifier, title: String) {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun Show(){
-    MaterialTheme() {
-        CustomButton(value = "Hola", onClick = {})
+fun CustomButtonPreview() {
+    MaterialTheme {
+        androidx.compose.foundation.layout.Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+            // Normal button
+            CustomButton(
+                modifier = Modifier.size(150.dp, 40.dp),
+                value = "Normal Button",
+                onClick = {}
+            )
+
+            Spacer(modifier = Modifier.size(12.dp))
+
+            // Bold button
+            CustomButton(
+                value = "Bold Button",
+                isBold = true,
+                onClick = {}
+            )
+
+            Spacer(modifier = Modifier.size(12.dp))
+
+            // Button with icon
+            CustomButton(
+                value = "With Icon",
+                icon = true,
+                itemIcon = android.R.drawable.ic_menu_camera,
+                contentIcon = "camera",
+                onClick = {}
+            )
+        }
     }
 }

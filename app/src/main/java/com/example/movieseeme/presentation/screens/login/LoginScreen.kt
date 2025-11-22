@@ -1,9 +1,9 @@
 package com.example.movieseeme.presentation.screens.login
 
+import CustomToast
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -34,6 +34,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,28 +51,28 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.net.toUri
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.movieseeme.R
 import com.example.movieseeme.data.remote.model.auth.LoginRequest
+import com.example.movieseeme.data.remote.model.state.user.LoginEvent
 import com.example.movieseeme.presentation.components.CustomButton
-import com.example.movieseeme.presentation.components.DirectionalShadowTextField
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.components.TextErrorInput
+import com.example.movieseeme.presentation.components.user.ShadowTextField
 import com.example.movieseeme.presentation.screens.setting_screen.LockScreenOrientationPortrait
 import com.example.movieseeme.presentation.theme.extension.titleHeader
 import com.example.movieseeme.presentation.theme.extension.titleHeader1
-import com.example.movieseeme.presentation.viewmodels.LoginEvent
-import com.example.movieseeme.presentation.viewmodels.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
 import kotlin.math.roundToInt
 
 @SuppressLint("ConfigurationScreenWidthHeight", "ContextCastToActivity")
 @Composable
 fun LoginScreen(
-    viewModel: UserViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel,
     navController: NavController
 ) {
     LockScreenOrientationPortrait()
+
 
     val configuration = LocalConfiguration.current
     val screenHeightDp = configuration.screenHeightDp.dp
@@ -87,13 +90,25 @@ fun LoginScreen(
         ),
         label = "scrollY"
     )
-
     val context = LocalContext.current
     val activity = context as Activity
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by authViewModel.uiState.collectAsState()
+    val authState by authViewModel.authState.collectAsState()
 
-    LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
+    var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(authState.message) {
+        val msg = authState.message
+        if (msg != null && msg != toastMessage) {
+            toastMessage = msg
+            showToast = true
+        }
+    }
+
+
+    LaunchedEffect(authViewModel) {
+        authViewModel.events.collect { event ->
             when (event) {
                 is LoginEvent.OpenGoogleLogin -> {
                     val intent = Intent(Intent.ACTION_VIEW, event.url.toUri())
@@ -103,33 +118,29 @@ fun LoginScreen(
         }
     }
 
-    if (uiState.click) {
-        LaunchedEffect(activity.intent?.data) {
-            val uri = activity.intent?.data
-            val accessToken = uri?.getQueryParameter("accessToken")
-            val refreshToken = uri?.getQueryParameter("refreshToken")
-            viewModel.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
-        }
-        uiState.click = false
-    }
+    LaunchedEffect(Unit) {
+        val uri = activity.intent?.data
+        if (uri != null) {
+            val accessToken = uri.getQueryParameter("accessToken")
+            val refreshToken = uri.getQueryParameter("refreshToken")
+            authViewModel.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
 
-    LaunchedEffect(uiState.message) {
-        uiState.message?.let { msg ->
-            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            activity.intent.data = null
         }
     }
 
-    LaunchedEffect(uiState.success) {
-        if (uiState.success == true) {
+    LaunchedEffect(authState.success) {
+        if (authState.success == true) {
             navController.navigate("home") {
-                popUpTo("login") { inclusive = true }
+                popUpTo(0) { inclusive = true }
             }
         }
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.resetLoginState()
+            authViewModel.resetLoginState()
+            authViewModel.clearMessage()
         }
     }
 
@@ -175,7 +186,7 @@ fun LoginScreen(
                 val isDark = isSystemInDarkTheme()
                 if (isDark) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo1),
+                        painter = painterResource(id = R.drawable.item_logo_light),
                         contentDescription = "Logo",
                         modifier = Modifier
                             .size(360.dp)
@@ -187,7 +198,7 @@ fun LoginScreen(
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.item_logo_black),
                         contentDescription = "Logo",
                         modifier = Modifier
                             .size(360.dp)
@@ -201,21 +212,21 @@ fun LoginScreen(
 
                 Text(
                     modifier = Modifier.constrainAs(tvHeader) {
-                        top.linkTo(tvLogo.bottom, margin = (-36).dp)
+                        top.linkTo(tvLogo.bottom, margin = (-40).dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                    text = "Welcome Back",
+                    text = "Xin Chào",
                     style = MaterialTheme.typography.titleHeader,
                 )
 
                 Text(
                     modifier = Modifier.constrainAs(tvHeader1) {
-                        top.linkTo(tvHeader.bottom, margin = 8.dp)
+                        top.linkTo(tvHeader.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                    text = "Enter your Details",
+                    text = "Nhập thông tin của bạn",
                     style = styleTitle1.copy(
                         color = onBackground
                     )
@@ -232,10 +243,10 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    DirectionalShadowTextField(
+                    ShadowTextField(
                         value = uiState.username,
-                        onValueChange = viewModel::onUsernameChange,
-                        placeholder = "Username",
+                        onValueChange = authViewModel::onUsernameChange,
+                        placeholder = "Tài khoản",
                         isError = uiState.isUserNameError,
                         icon = false
                     )
@@ -243,16 +254,16 @@ fun LoginScreen(
                         Spacer(modifier = Modifier.height(5.dp))
                         TextErrorInput(
                             modifier = Modifier.align(Alignment.Start),
-                            title = "*Least 8 characters"
+                            title = "* Ít nhất 8 kí tự"
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    DirectionalShadowTextField(
+                    ShadowTextField(
                         value = uiState.password,
-                        onValueChange = viewModel::onPasswordChange,
-                        placeholder = "Password",
+                        onValueChange = authViewModel::onPasswordChange,
+                        placeholder = "Mật khẩu",
                         isError = uiState.isPasswordError,
                         icon = true
                     )
@@ -266,17 +277,17 @@ fun LoginScreen(
                         if (uiState.isPasswordError) {
                             TextErrorInput(
                                 modifier = Modifier,
-                                title = "*Least 8 characters"
+                                title = "* Ít nhất 8 kí tự"
                             )
                         } else {
                             Spacer(modifier = Modifier.width(1.dp))
                         }
 
                         Text(
-                            text = "Forgot password?",
+                            text = "Quên mật khẩu?",
                             modifier = Modifier
                                 .clickable {
-                                    viewModel.setShowForgotPassword(true)
+                                    authViewModel.setShowForgotPassword(true)
                                 },
                             style = styleTitle1.copy(color = onBackground)
                         )
@@ -286,10 +297,10 @@ fun LoginScreen(
 
                     CustomButton(
                         modifier = Modifier.size(width = 180.dp, height = 45.dp),
-                        value = "Login",
+                        value = "Đăng nhập",
                         onClick = {
-                            viewModel.login(LoginRequest(uiState.username, uiState.password))
-                            uiState.click = true
+                            authViewModel.login(LoginRequest(uiState.username, uiState.password))
+
                         },
                         icon = false,
                         contentIcon = "Login with username",
@@ -309,7 +320,7 @@ fun LoginScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Or",
+                            text = "Khác",
                             style = styleTitle1.copy(
                                 color = onBackground,
                                 fontWeight = FontWeight.Bold
@@ -327,15 +338,14 @@ fun LoginScreen(
 
                     CustomButton(
                         modifier = Modifier.size(width = 220.dp, height = 45.dp),
-                        value = "Continue with Google",
+                        value = "Đăng nhập với Google",
                         onClick = {
-                            viewModel.onGoogleLoginClicked()
-//                            uiState.click = true
+                            authViewModel.onGoogleLoginClicked()
                         },
                         icon = true,
                         isBold = false,
-                        itemIcon = R.drawable.google,
-                        contentIcon = "Login with username",
+                        itemIcon = R.drawable.icon_google,
+                        contentIcon = "Login with google",
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -346,18 +356,17 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Don’t have account?",
+                            text = "Bạn chưa có tài khoản?",
                             style = styleTitle1.copy(
                                 color = onBackground
                             )
                         )
                         Text(
-                            text = "Sign up",
+                            text = "Đăng kí",
                             modifier = Modifier
                                 .padding(start = 5.dp)
                                 .clickable {
                                     navController.navigate("signUp")
-                                    uiState.click = true
                                 },
                             style = styleTitle1.copy(
                                 color = Color.Red,
@@ -366,19 +375,33 @@ fun LoginScreen(
                         )
                     }
                 }
+                if (showToast && toastMessage.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 30.dp),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        CustomToast(
+                            value = toastMessage,
+                            onDismiss = {
+                                showToast = false
+                                authViewModel.clearMessage()
+                            }
+                        )
+                    }
+                }
             }
+
+
         }
-
-
+        if (authState.isLoading) {
+            LoadingBounce()
+        }
         if (uiState.forGotPassword) {
             ForgotPassword(
-                onDismiss = { viewModel.setShowForgotPassword(false) }
-            )
-        }
-
-        if (uiState.isLoading) {
-            LoadingBounce(
-                modifier = Modifier.fillMaxSize()
+                authViewModel = authViewModel,
+                onDismiss = { authViewModel.setShowForgotPassword(false) }
             )
         }
     }

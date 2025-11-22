@@ -1,9 +1,9 @@
 package com.example.movieseeme.presentation.screens.signUp
 
+import CustomToast
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -33,6 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,30 +46,30 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.net.toUri
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.movieseeme.R
 import com.example.movieseeme.data.remote.model.auth.SignUpRequest
+import com.example.movieseeme.data.remote.model.state.user.LoginEvent
 import com.example.movieseeme.presentation.components.CustomButton
-import com.example.movieseeme.presentation.components.DirectionalShadowTextField
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.components.TextErrorInput
+import com.example.movieseeme.presentation.components.user.ShadowTextField
 import com.example.movieseeme.presentation.screens.setting_screen.LockScreenOrientationPortrait
 import com.example.movieseeme.presentation.theme.extension.titleHeader
 import com.example.movieseeme.presentation.theme.extension.titleHeader1
-import com.example.movieseeme.presentation.viewmodels.LoginEvent
-import com.example.movieseeme.presentation.viewmodels.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
 import kotlin.math.roundToInt
 
 
 @SuppressLint("ConfigurationScreenWidthHeight", "ContextCastToActivity", "UseKtx")
 @Composable
 fun SignUpScreen(
-    viewModel: UserViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel,
     navController: NavHostController
 ) {
     LockScreenOrientationPortrait()
@@ -90,10 +93,21 @@ fun SignUpScreen(
 
     val context = LocalContext.current
     val activity = context as Activity
-    val uiState by viewModel.uiState.collectAsState()
+    val authState by authViewModel.authState.collectAsState()
 
-    LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
+    val uiState by authViewModel.uiState.collectAsState()
+    var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(authState.message) {
+        val msg = authState.message
+        if (msg != null && msg != toastMessage) {
+            toastMessage = msg
+            showToast = true
+        }
+    }
+    LaunchedEffect(authViewModel) {
+        authViewModel.events.collect { event ->
             when (event) {
                 is LoginEvent.OpenGoogleLogin -> {
                     val intent = Intent(Intent.ACTION_VIEW, event.url.toUri())
@@ -108,17 +122,11 @@ fun SignUpScreen(
             val uri = activity.intent?.data
             val accessToken = uri?.getQueryParameter("accessToken")
             val refreshToken = uri?.getQueryParameter("refreshToken")
-            viewModel.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
+            authViewModel.saveTokens(accessToken = accessToken, refreshToken = refreshToken)
         }
         uiState.click = false
     }
 
-    LaunchedEffect(uiState.message) {
-        uiState.message?.let { msg ->
-            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-        }
-        uiState.click = false
-    }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -166,7 +174,7 @@ fun SignUpScreen(
                 val isDark = isSystemInDarkTheme()
                 if (isDark) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo1),
+                        painter = painterResource(id = R.drawable.item_logo_light),
                         contentDescription = "Logo",
                         modifier = Modifier
                             .size(360.dp)
@@ -178,7 +186,7 @@ fun SignUpScreen(
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.item_logo_black),
                         contentDescription = "Logo",
                         modifier = Modifier
                             .size(360.dp)
@@ -196,7 +204,8 @@ fun SignUpScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                    text = "Welcome to SeeMe",
+                    textAlign = TextAlign.Center,
+                    text = "Chào mừng đến MovieSeeme",
                     style = MaterialTheme.typography.titleHeader,
                 )
 
@@ -211,10 +220,10 @@ fun SignUpScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    DirectionalShadowTextField(
+                    ShadowTextField(
                         value = uiState.username,
-                        onValueChange = viewModel::onUsernameChange,
-                        placeholder = "Username",
+                        onValueChange = authViewModel::onUsernameChange,
+                        placeholder = "Tài khoản",
                         isError = uiState.isUserNameError,
                         icon = false
                     )
@@ -222,16 +231,16 @@ fun SignUpScreen(
                         Spacer(modifier = Modifier.height(5.dp))
                         TextErrorInput(
                             modifier = Modifier.align(Alignment.Start),
-                            title = "*Use at least 8 characters"
+                            title = "* Ít nhất 8 kí tự"
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    DirectionalShadowTextField(
+                    ShadowTextField(
                         value = uiState.password,
-                        onValueChange = viewModel::onPasswordChange,
-                        placeholder = "Password",
+                        onValueChange = authViewModel::onPasswordChange,
+                        placeholder = "Mật khẩu",
                         isError = uiState.isPasswordError,
                         icon = true
                     )
@@ -240,16 +249,16 @@ fun SignUpScreen(
 
                         TextErrorInput(
                             modifier = Modifier.align(Alignment.Start),
-                            title = "*Use at least 8 characters"
+                            title = "* Ít nhất 8 kí tự"
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    DirectionalShadowTextField(
+                    ShadowTextField(
                         value = uiState.confirmPassword,
-                        onValueChange = viewModel::confirmPasswordChange,
-                        placeholder = "Confirm password",
+                        onValueChange = authViewModel::confirmPasswordChange,
+                        placeholder = "Xác nhận mật khẩu",
                         isError = uiState.isConfirmPasswordError,
                         icon = true
                     )
@@ -257,15 +266,15 @@ fun SignUpScreen(
                         Spacer(modifier = Modifier.height(5.dp))
                         TextErrorInput(
                             modifier = Modifier.align(Alignment.Start),
-                            title = "*Password doesn't match"
+                            title = "* Mật khẩu không khớp"
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    DirectionalShadowTextField(
+                    ShadowTextField(
                         value = uiState.email,
-                        onValueChange = viewModel::onEmailChange,
+                        onValueChange = authViewModel::onEmailChange,
                         placeholder = "Email",
                         isError = uiState.isEmailError,
                         icon = false
@@ -274,7 +283,7 @@ fun SignUpScreen(
                         Spacer(modifier = Modifier.height(5.dp))
                         TextErrorInput(
                             modifier = Modifier.align(Alignment.Start),
-                            title = "*Invalid email"
+                            title = "*Email đã được đăng kí "
                         )
                     }
 
@@ -282,16 +291,17 @@ fun SignUpScreen(
 
                     CustomButton(
                         modifier = Modifier.size(width = 180.dp, height = 45.dp),
-                        value = "Sign Up",
+                        value = "Đăng kí",
                         onClick = {
-                            viewModel.signUp(
+                            authViewModel.signUp(
                                 SignUpRequest(
-                                    uiState.username,
-                                    uiState.username,
-                                    uiState.confirmPassword,
-                                    uiState.email.takeIf { it.isNotBlank() }
+                                    name = uiState.username,
+                                    username = uiState.username,
+                                    password = uiState.confirmPassword,
+                                    email = uiState.email.takeIf { it.isNotBlank() }
                                 )
                             )
+
                             uiState.click = true
                         },
                         icon = false,
@@ -312,7 +322,7 @@ fun SignUpScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Or",
+                            text = "Khác",
                             style = styleTitle1.copy(
                                 color = onBackground,
                                 fontWeight = FontWeight.Bold
@@ -330,13 +340,13 @@ fun SignUpScreen(
 
                     CustomButton(
                         modifier = Modifier.size(width = 220.dp, height = 45.dp),
-                        value = "Continue with Google",
+                        value = "Tiếp tục với Google",
                         onClick = {
-                            viewModel.onGoogleLoginClicked()
+                            authViewModel.onGoogleLoginClicked()
                         },
                         icon = true,
                         isBold = false,
-                        itemIcon = R.drawable.google,
+                        itemIcon = R.drawable.icon_google,
                         contentIcon = "Sign up with username",
                     )
 
@@ -348,13 +358,13 @@ fun SignUpScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "You have account?",
+                            text = "Bạn đã có tài khoản?",
                             style = styleTitle1.copy(
                                 color = onBackground
                             )
                         )
                         Text(
-                            text = "Login",
+                            text = "Đăng nhập",
                             modifier = Modifier
                                 .padding(start = 5.dp)
                                 .clickable {
@@ -367,7 +377,26 @@ fun SignUpScreen(
                         )
                     }
                 }
+                if (showToast && toastMessage.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 85.dp),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        CustomToast(
+                            value = toastMessage,
+                            onDismiss = {
+                                showToast = false
+                                authViewModel.clearMessage()
+                            }
+                        )
+                    }
+                }
             }
+        }
+        if (authState.isLoading) {
+            LoadingBounce()
         }
     }
 }

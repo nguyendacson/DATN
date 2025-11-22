@@ -7,14 +7,14 @@ import com.example.movieseeme.data.remote.model.auth.LoginRequest
 import com.example.movieseeme.data.remote.model.auth.LoginResponse
 import com.example.movieseeme.data.remote.model.auth.SignUpRequest
 import com.example.movieseeme.data.remote.model.auth.forgot_password.ResetPassRequest
-import com.example.movieseeme.data.repository.UserRepositoryImpl
+import com.example.movieseeme.data.repository.AuthRepositoryImpl
 import javax.inject.Inject
 
 class AuthUseCase @Inject constructor(
-    private val repository: UserRepositoryImpl,
-    private val tokenManager: TokenManager
+    private val repository: AuthRepositoryImpl,
+    val tokenManager: TokenManager
 ) {
-    suspend operator fun invoke(request: LoginRequest): ApiResult<ApiResponse<LoginResponse>> {
+    suspend fun login(request: LoginRequest): ApiResult<ApiResponse<LoginResponse>> {
         val result = repository.loginUser(request)
         if (result is ApiResult.Success) {
             result.data.result.let { token ->
@@ -27,7 +27,7 @@ class AuthUseCase @Inject constructor(
         return result
     }
 
-    suspend operator fun invoke(accessToken: String, refreshToken: String) {
+    suspend fun saveToken(accessToken: String, refreshToken: String) {
         tokenManager.saveTokens(
             accessToken = accessToken,
             refreshToken = refreshToken

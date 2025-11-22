@@ -44,7 +44,7 @@ fun LoadingBounce(modifier: Modifier = Modifier) {
             painter = painterResource(id = R.drawable.item_loading),
             contentDescription = null,
             modifier = Modifier
-                .size(180.dp)
+                .size(100.dp)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale

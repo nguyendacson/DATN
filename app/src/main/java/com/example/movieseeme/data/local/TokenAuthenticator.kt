@@ -12,7 +12,7 @@ import javax.inject.Named
 
 class TokenAuthenticator @Inject constructor(
     private val tokenManager: TokenManager,
-    @param:Named("auth_api") private val authAPI: AuthAPI, // 👈 thêm @Named
+    @param:Named("auth_api") private val authAPI: AuthAPI,
     private val sessionManager: SessionManager
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {

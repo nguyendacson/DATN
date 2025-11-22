@@ -1,7 +1,7 @@
 package com.example.movieseeme.data.remote.api
 
 import com.example.movieseeme.data.remote.model.ApiResponse
-import com.example.movieseeme.domain.model.UserResponseAdmin
+import com.example.movieseeme.domain.model.user.UserResponseAdmin
 import com.example.movieseeme.data.remote.model.auth.LoginRequest
 import com.example.movieseeme.data.remote.model.auth.LoginResponse
 import com.example.movieseeme.data.remote.model.auth.SignUpRequest
