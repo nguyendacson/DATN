@@ -48,7 +48,7 @@ class EpisodeViewModel @Inject constructor(
     private val _selectedDataMovie = MutableStateFlow<DataMovie?>(null)
     val selectedDataMovie: StateFlow<DataMovie?> = _selectedDataMovie.asStateFlow()
 
-    private val _currentUrl = MutableStateFlow<String>("")
+    private val _currentUrl = MutableStateFlow("")
     val currentUrl: StateFlow<String> = _currentUrl.asStateFlow()
 
     fun clearEpisodes() {
@@ -107,11 +107,11 @@ class EpisodeViewModel @Inject constructor(
     }
 
     private var mediaSession: MediaSession? = null
-    private var playerNotificationManager: PlayerNotificationManager? = null
+    var playerNotificationManager: PlayerNotificationManager? = null
 
     init {
-        mediaSession = MediaSession.Builder(context, exoPlayer).build()
-        setupNotification()
+            mediaSession = MediaSession.Builder(context, exoPlayer).build()
+            setupNotification()
     }
 
     @OptIn(UnstableApi::class)
@@ -162,16 +162,20 @@ class EpisodeViewModel @Inject constructor(
 
     @SuppressLint("UseKtx")
     @OptIn(UnstableApi::class)
-    fun playVideo(url: String) {
+    fun playVideo(exoPlayer: ExoPlayer,url: String) {
         if (url.isNotBlank()) {
-            val currentMediaId = exoPlayer.currentMediaItem?.mediaId
-            if (currentMediaId == url) return
+//            val currentMediaId = exoPlayer.currentMediaItem?.mediaId
+//            if (currentMediaId == url) return
 
+            if (url.isBlank()) {
+                exoPlayer.stop()
+                return
+            }
             val currentTitle = _selectedDataMovie.value?.name ?: "Đang phát"
 
             val metadata = MediaMetadata.Builder()
                 .setTitle(currentTitle)
-                .setArtist("MovieSeeMe")
+                .setArtist(_selectedDataMovie.value?.filename)
                 .build()
 
             val mediaItem = MediaItem.Builder()
@@ -188,11 +192,17 @@ class EpisodeViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         super.onCleared()
         playerNotificationManager?.setPlayer(null)
         mediaSession?.release()
         mediaSession = null
         exoPlayer.release()
     }
+
+    fun releasePlayer() {
+        playerNotificationManager?.setPlayer(null)
+        exoPlayer.pause()
+    }
+
 }

@@ -25,7 +25,7 @@ class TokenManager @Inject constructor(
     val refreshToken: Flow<String?> = context.dataStore.data.map { it[REFRESH_TOKEN]  }
 
     suspend fun getAccessToken(): String? = accessToken.first()
-    suspend fun getRefreshToken(): String? = refreshToken.first()
+//    suspend fun getRefreshToken(): String? = refreshToken.first()
 
     suspend fun saveTokens(accessToken: String, refreshToken: String){
         context.dataStore.edit {

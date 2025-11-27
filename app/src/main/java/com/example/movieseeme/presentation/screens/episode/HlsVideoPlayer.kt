@@ -9,7 +9,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -30,7 +29,6 @@ fun HlsVideoPlayer(
     interactionViewModel: InteractionViewModel,
     episodeViewModel: EpisodeViewModel
 ) {
-
     val exoPlayer = episodeViewModel.exoPlayer
     val url by episodeViewModel.currentUrl.collectAsState()
     val context = LocalContext.current // Lấy context để check PiP
@@ -38,7 +36,9 @@ fun HlsVideoPlayer(
     val listMovieWatching by interactionViewModel.listMovieWatching.collectAsState()
 
     LaunchedEffect(url) {
-        episodeViewModel.playVideo(url)
+//        episodeViewModel.playVideo(url)
+        episodeViewModel.playVideo(exoPlayer, url)
+
         val existing = listMovieWatching.firstOrNull { it.dataMovieId == dataMovieId?.id }
         val progressMin = existing?.progressSeconds ?: 0
 
@@ -50,7 +50,14 @@ fun HlsVideoPlayer(
     }
 
     DisposableEffect(Unit) {
+        val activity = context as Activity
+
         onDispose {
+            if (activity.isInPictureInPictureMode) {
+                activity.finish()   // Thoát PiP window
+            }
+
+
             val watchedMs = exoPlayer.currentPosition
             val watchedMin =
                 (watchedMs / 1000f / 60f).roundToInt()
@@ -63,7 +70,7 @@ fun HlsVideoPlayer(
                     )
                 )
                 interactionViewModel.getMoviesWatching()
-            }else{
+            } else {
                 interactionViewModel.postMovieToWatching(
                     WatchingCreateRequest(
                         movieId = movieID,
@@ -86,7 +93,7 @@ fun HlsVideoPlayer(
                 val isPip = activity?.isInPictureInPictureMode == true
 
                 if (!isPip) {
-                    exoPlayer.pause()
+                    exoPlayer.play()
                 }
             } else if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                 if (exoPlayer.playbackState != ExoPlayer.STATE_IDLE) {

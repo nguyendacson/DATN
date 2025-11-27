@@ -16,14 +16,14 @@ class AuthUseCase @Inject constructor(
 ) {
     suspend fun login(request: LoginRequest): ApiResult<ApiResponse<LoginResponse>> {
         val result = repository.loginUser(request)
-        if (result is ApiResult.Success) {
-            result.data.result.let { token ->
-                tokenManager.saveTokens(
-                    accessToken = token.accessToken,
-                    refreshToken = token.refreshToken
-                )
-            }
-        }
+//        if (result is ApiResult.Success) {
+//            result.data.result.let { token ->
+//                tokenManager.saveTokens(
+//                    accessToken = token.accessToken,
+//                    refreshToken = token.refreshToken
+//                )
+//            }
+//        }
         return result
     }
 

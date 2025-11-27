@@ -1,6 +1,8 @@
 import android.app.PictureInPictureParams
 import android.content.res.Configuration
-import android.util.Log
+import android.os.Build
+import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,13 +35,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.example.movieseeme.MainActivity
 import com.example.movieseeme.domain.enum_class.detail.MovieDetailOption
 import com.example.movieseeme.presentation.components.CustomButton
-import com.example.movieseeme.presentation.components.lock_screen.LockScreenOrientationPortrait
 import com.example.movieseeme.presentation.components.lock_screen.UnlockScreenOrientationSensor
 import com.example.movieseeme.presentation.components.movies.lazy.RowItemImage
 import com.example.movieseeme.presentation.screens.comment.CommentScreen
@@ -54,6 +55,8 @@ import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.detail.DetailViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(UnstableApi::class)
 @Composable
 fun EpisodeScreen(
     movieId: String,
@@ -118,8 +121,11 @@ fun EpisodeScreen(
 
     DisposableEffect(Unit) {
         activity.setPipEnabled(true)
+        episodeViewModel.playerNotificationManager?.setPlayer(episodeViewModel.exoPlayer)
+
         onDispose {
             activity.setPipEnabled(false)
+            episodeViewModel.releasePlayer()// chỉ pause
         }
     }
 

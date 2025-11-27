@@ -21,11 +21,10 @@ fun AppNavHost(
 ) {
     val authViewModel: AuthViewModel = hiltViewModel()
     val rootNavController = rememberNavController()
-    val viewModel: SplashViewModel = hiltViewModel()
-    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val splashViewModel: SplashViewModel = hiltViewModel()
+    val isLoggedIn by splashViewModel.isLoggedIn.collectAsState()
 
     val isLoggedOut by sessionManager.isLoggedOut.collectAsState()
-
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
             rootNavController.popBackStack(rootNavController.graph.startDestinationId, true)
