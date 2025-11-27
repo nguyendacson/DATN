@@ -18,7 +18,7 @@ import com.example.movieseeme.presentation.components.movies.item.profile.item.C
 fun MovieWatchingProfile(
     movieWatching: MovieWatching,
     optionClick: (MovieWatching) -> Unit,
-    detailClick: (String) -> Unit,
+    detailClick: (MovieWatching) -> Unit,
 ) {
     val movieDTO = movieWatching.movieDTO
 
@@ -32,9 +32,9 @@ fun MovieWatchingProfile(
 
             ImageMovieWatching(
                 modifier = Modifier.fillMaxSize(),
-                movieDTO = movieDTO,
+                movieWatching = movieWatching,
                 progressSeconds = movieWatching.progressSeconds,
-                detailClick = { detailClick(movieDTO.id) }
+                detailClick = { detailClick(movieWatching) }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -43,7 +43,7 @@ fun MovieWatchingProfile(
                 modifier = Modifier.fillMaxWidth(),
                 movieDTO = movieDTO,
                 nameMovie = movieWatching.dataMovieName,
-                detailClick = { detailClick(movieDTO.id) },
+                detailClick = { detailClick(movieWatching) },
                 optionClick = { optionClick(movieWatching) }
             )
         }

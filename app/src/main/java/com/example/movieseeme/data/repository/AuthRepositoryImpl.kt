@@ -3,10 +3,10 @@ package com.example.movieseeme.data.repository
 import com.example.movieseeme.data.remote.api.AuthAPI
 import com.example.movieseeme.data.remote.model.ApiResponse
 import com.example.movieseeme.data.remote.model.ApiResult
-import com.example.movieseeme.data.remote.model.auth.LoginRequest
-import com.example.movieseeme.data.remote.model.auth.LoginResponse
-import com.example.movieseeme.data.remote.model.auth.SignUpRequest
-import com.example.movieseeme.data.remote.model.auth.forgot_password.ResetPassRequest
+import com.example.movieseeme.data.remote.model.request.auth.LoginRequest
+import com.example.movieseeme.data.remote.model.request.auth.LoginResponse
+import com.example.movieseeme.data.remote.model.request.auth.SignUpRequest
+import com.example.movieseeme.data.remote.model.request.auth.forgot_password.ResetPassRequest
 import com.example.movieseeme.domain.repository.AuthRepository
 import com.google.gson.Gson
 import retrofit2.Response

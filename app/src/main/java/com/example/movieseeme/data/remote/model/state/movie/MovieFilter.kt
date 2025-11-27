@@ -5,7 +5,7 @@ data class MovieFilter(
     val page: Int? = 0,
     val limit: Int? = 200,
     val sortField: String? = "modified",
-//    val sortType: String? = "desc",
+    val sort: String? = "desc",
 //    val sortLang: String? = null,
     val status: String? = "ongoing",
     val category: String? = null,

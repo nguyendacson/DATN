@@ -2,7 +2,6 @@ package com.example.movieseeme.presentation.screens.setting
 
 import CustomToast
 import ItemTextField
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,9 +48,8 @@ import androidx.navigation.NavHostController
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.components.movies.item.RowHeader
 import com.example.movieseeme.presentation.theme.extension.titleHeader2
-import com.example.movieseeme.presentation.viewmodels.user.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.time.delay
 
 @Composable
 fun EmailScreen(

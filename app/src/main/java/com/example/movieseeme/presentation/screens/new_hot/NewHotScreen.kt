@@ -23,8 +23,8 @@ import androidx.navigation.NavController
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.components.movies.lazy.HotBannerPager
 import com.example.movieseeme.presentation.components.movies.lazy.HotOption
-import com.example.movieseeme.presentation.screens.HeaderScreen
-import com.example.movieseeme.presentation.viewmodels.movie.HotViewModel
+import com.example.movieseeme.presentation.components.header.HeaderScreen
+import com.example.movieseeme.presentation.viewmodels.movie.hot_new.HotViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
 
 @Composable
@@ -74,6 +74,9 @@ fun NewHotScreen(
                     HotBannerPager(
                         modifier = Modifier.fillMaxSize(),
                         movies = movies.take(20),
+                        playClick = {
+                            navController.navigate("detailScreen/${it}")
+                        },
                         myListClick = { id ->
                             interactionViewModel.postMovieToMyList(id)
                         }

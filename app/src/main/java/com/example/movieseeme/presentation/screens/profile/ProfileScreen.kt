@@ -1,6 +1,7 @@
 package com.example.movieseeme.presentation.screens.profile
 
 import CustomToast
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,15 +35,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.movieseeme.domain.model.enum.ProfileTitleFull
+import com.example.movieseeme.domain.enum_class.ProfileTitleFull
 import com.example.movieseeme.presentation.components.LoadingBounce
-import com.example.movieseeme.presentation.components.MovieBottomSheetContent
+import com.example.movieseeme.presentation.components.bottom_sheet.MovieBottomSheetContent
+import com.example.movieseeme.presentation.components.lock_screen.LockScreenOrientationPortrait
 import com.example.movieseeme.presentation.components.movies.item.profile.HeaderProfile
 import com.example.movieseeme.presentation.components.movies.lazy.profile.RowMovie
 import com.example.movieseeme.presentation.components.movies.lazy.profile.RowMovieWatching
 import com.example.movieseeme.presentation.theme.extension.titleHeader
 import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
-import com.example.movieseeme.presentation.viewmodels.user.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +53,8 @@ fun ProfileScreen(
     interactionViewModel: InteractionViewModel,
     userViewModel: UserViewModel
 ) {
+    LockScreenOrientationPortrait()
+
     val movieWatching by interactionViewModel.listMovieWatching.collectAsState()
     val movieListForYou by interactionViewModel.listMovieListForYou.collectAsState()
     val movieListTrailer by interactionViewModel.listMovieTrailer.collectAsState()
@@ -118,7 +122,9 @@ fun ProfileScreen(
                         HeaderProfile(
                             modifier = Modifier.fillMaxWidth(),
                             userInfo = userInfo!!,
-                            downloadClick = {},
+                            downloadClick = {
+                                interactionViewModel.setMessage("Đang phát triển")
+                            },
                             avatarClick = { navController.navigate("avatar") },
                         )
                         Spacer(modifier = Modifier.height(25.dp))
@@ -129,9 +135,10 @@ fun ProfileScreen(
                 }
 
                 item {
+                    val uniqueMovies = movieWatching.distinctBy { it.movieDTO.id }
                     RowMovieWatching(
                         moreClick = { navController.navigate("fullListMovie/watching") },
-                        moviesWatching = movieWatching,
+                        moviesWatching = uniqueMovies,
                         optionClick = { movieWatching ->
                             interactionViewModel.onItemClick(
                                 id = movieWatching.movieDTO.id,
@@ -141,7 +148,8 @@ fun ProfileScreen(
                                 dataMovieId = movieWatching.dataMovieId
                             )
                         },
-                        detailClick = { movieWatching.map { it.movieDTO.id } }
+                        detailClick = {
+                            navController.navigate("episode?movieId=${it.movieDTO.id}&episodeId=${it.dataMovieId}") }
                     )
                 }
 
@@ -155,6 +163,10 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(15.dp))
                     RowMovie(
                         title = type.nameTitle,
+                        detailClick = {
+                            navController.navigate("detailScreen/${it}")
+                            Log.d("ProfileScreen", "ProfileScreen: $it")
+                        },
                         moreClick = { navController.navigate("fullListMovie/${type.slug}") },
                         movieDTO = dataMovieDTO.take(10),
                         optionClick = { movie ->
@@ -191,6 +203,12 @@ fun ProfileScreen(
                     },
                     onDelete = {
                         interactionViewModel.onDelete()
+                        interactionViewModel.closeSheet()
+
+                    },
+                    onShare = {
+                        interactionViewModel.setMessage("Đang phát triển")
+                        interactionViewModel.closeSheet()
                     }
                 )
             }

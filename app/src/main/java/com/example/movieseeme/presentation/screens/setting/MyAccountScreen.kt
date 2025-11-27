@@ -39,8 +39,8 @@ import androidx.navigation.NavController
 import com.example.movieseeme.presentation.components.movies.item.RowHeader
 import com.example.movieseeme.presentation.components.movies.item.profile.HeaderProfile
 import com.example.movieseeme.presentation.theme.extension.titleHeader2
-import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
-import com.example.movieseeme.presentation.viewmodels.user.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.AuthViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 
 @Composable
 fun MyAccountScreen(

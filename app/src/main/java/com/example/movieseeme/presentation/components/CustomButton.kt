@@ -18,9 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.movieseeme.presentation.theme.extension.titleHeader1
@@ -29,6 +29,8 @@ import com.example.movieseeme.presentation.theme.extension.titleHeader1
 fun CustomButton(
     modifier: Modifier = Modifier,
     value: String,
+    imageVector: ImageVector? = null,
+    isImageVector: Boolean = false,
     onClick: () -> Unit,
     isBold: Boolean = true,
     icon: Boolean = false,
@@ -56,12 +58,22 @@ fun CustomButton(
             contentPadding = PaddingValues(horizontal = 5.dp)
         ) {
             if (icon && itemIcon != null) {
-                Icon(
-                    painter = painterResource(id = itemIcon),
-                    contentDescription = contentIcon,
-                    modifier = Modifier.size(30.dp),
-                    tint = Color.Unspecified
-                )
+                if (isImageVector) {
+                    Icon(
+                        imageVector = imageVector!!,
+                        contentDescription = contentIcon,
+                        modifier = Modifier.size(30.dp),
+                        tint = MaterialTheme.colorScheme.background
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = itemIcon),
+                        contentDescription = contentIcon,
+                        modifier = Modifier.size(30.dp),
+                        tint = Color.Unspecified
+                    )
+                }
+
                 Spacer(modifier = Modifier.width(5.dp))
             }
             Text(
@@ -73,7 +85,6 @@ fun CustomButton(
             )
         }
     }
-
 }
 
 @Composable
@@ -89,40 +100,3 @@ fun TextErrorInput(modifier: Modifier, title: String) {
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun CustomButtonPreview() {
-    MaterialTheme {
-        androidx.compose.foundation.layout.Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-
-            // Normal button
-            CustomButton(
-                modifier = Modifier.size(150.dp, 40.dp),
-                value = "Normal Button",
-                onClick = {}
-            )
-
-            Spacer(modifier = Modifier.size(12.dp))
-
-            // Bold button
-            CustomButton(
-                value = "Bold Button",
-                isBold = true,
-                onClick = {}
-            )
-
-            Spacer(modifier = Modifier.size(12.dp))
-
-            // Button with icon
-            CustomButton(
-                value = "With Icon",
-                icon = true,
-                itemIcon = android.R.drawable.ic_menu_camera,
-                contentIcon = "camera",
-                onClick = {}
-            )
-        }
-    }
-}

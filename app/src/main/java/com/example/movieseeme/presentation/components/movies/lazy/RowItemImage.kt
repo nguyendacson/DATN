@@ -25,7 +25,13 @@ import com.example.movieseeme.presentation.components.movies.item.home.ItemImage
 import com.example.movieseeme.presentation.theme.extension.titleHeader2
 
 @Composable
-fun RowItemImage(value: String, moreClick: () -> Unit, movies: List<MovieDTO>) {
+fun RowItemImage(
+    value: String,
+    isMore: Boolean? = true,
+    moreClick: () -> Unit,
+    onClick:(String) -> Unit,
+    movies: List<MovieDTO>
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,11 +43,12 @@ fun RowItemImage(value: String, moreClick: () -> Unit, movies: List<MovieDTO>) {
             text = value,
             style = MaterialTheme.typography.titleHeader2
         )
-
-        Text(
-            text = "Xem thêm",
-            style = MaterialTheme.typography.titleHeader2,
-            modifier = Modifier.clickable { moreClick() })
+        if (isMore == true){
+            Text(
+                text = "Xem thêm",
+                style = MaterialTheme.typography.titleHeader2,
+                modifier = Modifier.clickable { moreClick() })
+        }
     }
 
     Spacer(modifier = Modifier.height(5.dp))
@@ -49,14 +56,14 @@ fun RowItemImage(value: String, moreClick: () -> Unit, movies: List<MovieDTO>) {
     if (!movies.isEmpty()) {
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 18.dp),
+            contentPadding = PaddingValues(horizontal = 15.dp),
             horizontalArrangement = Arrangement.spacedBy(13.dp),
         ) {
             items(movies) { data ->
                 if (!data.posterUrl.isBlank()) {
                     ItemImageHome(
                         modifier = Modifier.size(100.dp, 150.dp),
-                        itemClick = {},
+                        itemClick = {onClick(data.id)},
                         imageUrl = data.posterUrl
                     )
                 } else {
@@ -71,7 +78,8 @@ fun RowItemImage(value: String, moreClick: () -> Unit, movies: List<MovieDTO>) {
         }
     } else {
         LoadingBounce(
-            modifier = Modifier.padding(start = 18.dp)
+            modifier = Modifier
+                .padding(start = 18.dp)
                 .size(100.dp, 150.dp)
                 .clip(RoundedCornerShape(9.dp))
         )

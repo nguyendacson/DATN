@@ -1,38 +1,50 @@
 package com.example.movieseeme.presentation.viewmodels.movie
 
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.example.movieseeme.data.remote.model.ApiResult
 import com.example.movieseeme.data.remote.model.AppState
+import com.example.movieseeme.data.remote.model.request.WatchingCreateRequest
+import com.example.movieseeme.data.remote.model.request.WatchingUpdateRequest
 import com.example.movieseeme.data.remote.model.state.profile.MovieProfileFilter
 import com.example.movieseeme.data.repository.MovieRepositoryImpl
-import com.example.movieseeme.domain.model.enum.ProfileTitleFull
+import com.example.movieseeme.domain.enum_class.ProfileTitleFull
 import com.example.movieseeme.domain.model.movie.MovieDTO
 import com.example.movieseeme.domain.model.movie.MovieWatching
+import com.example.movieseeme.presentation.screens.help.ChatMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class InteractionViewModel @Inject constructor(
     private val movieRepositoryImpl: MovieRepositoryImpl
 ) : ViewModel() {
-
     private val _uiStateInteraction = MutableStateFlow(AppState())
     val uiStateInteraction: StateFlow<AppState> = _uiStateInteraction.asStateFlow()
-
 
     private val _uiStateAction = MutableStateFlow(AppState())
     val uiStateAction: StateFlow<AppState> = _uiStateAction.asStateFlow()
 
     fun clearMessage() {
         _uiStateInteraction.value = uiStateInteraction.value.copy(message = "")
-        _uiStateAction.value = _uiStateAction.value.copy(message = "")
+        _uiStateAction.value = _uiStateAction.value.copy(message = "", success = false)
     }
 
+
+//    fun setMessage(message: String?) {
+//        _uiStateInteraction.value.message = message
+//    }
 
     private val _selectedMovie = MutableStateFlow(MovieProfileFilter())
     val selectedMovie = _selectedMovie.asStateFlow()
@@ -72,10 +84,6 @@ class InteractionViewModel @Inject constructor(
     private val _listMovieMyList = MutableStateFlow<List<MovieDTO>>(emptyList())
     val listMovieMyList = _listMovieMyList.asStateFlow()
 
-
-    // ===================== INIT LOAD =====================
-
-
     fun getMoviesListByUser(slug: String): List<MovieDTO> {
         return when (slug) {
             ProfileTitleFull.LIKE.slug -> listMovieLikes.value
@@ -84,6 +92,9 @@ class InteractionViewModel @Inject constructor(
             ProfileTitleFull.LIST_FOR_YOU.slug -> listMovieListForYou.value
             else -> emptyList()
         }
+    }
+    fun setMessage(message: String){
+        _uiStateAction.value = AppState(message = message)
     }
 
     init {
@@ -96,8 +107,6 @@ class InteractionViewModel @Inject constructor(
         }
     }
 
-
-    // ===================== GET MOVIES =====================
     fun getMoviesForYou() {
         viewModelScope.launch {
             when (val result = movieRepositoryImpl.getMoviesForYou()) {
@@ -175,7 +184,41 @@ class InteractionViewModel @Inject constructor(
     }
 
 
-    // ===================== ACTIONS (ADD / DELETE) =====================
+    fun postMovieToWatching(watchingCreateRequest: WatchingCreateRequest) {
+        viewModelScope.launch {
+            _uiStateAction.value = AppState(isLoading = true)
+            when (movieRepositoryImpl.postMoviesWatching(watchingCreateRequest)) {
+                is ApiResult.Success -> {
+
+                    _uiStateAction.value =
+                        AppState(success = true)
+                    getMoviesWatching()
+                }
+
+                is ApiResult.Error -> {
+                    _uiStateAction.value = AppState(success = false)
+                }
+            }
+        }
+    }
+
+    fun updateWatching(watchingUpdateRequest: WatchingUpdateRequest) {
+        viewModelScope.launch {
+            _uiStateAction.value = AppState(isLoading = true)
+            when (movieRepositoryImpl.updateWatching(watchingUpdateRequest)) {
+                is ApiResult.Success -> {
+
+                    _uiStateAction.value =
+                        AppState(success = true)
+                    getMoviesWatching()
+                }
+
+                is ApiResult.Error -> {
+                    _uiStateAction.value = AppState(success = false)
+                }
+            }
+        }
+    }
 
     fun postMovieToMyList(movieId: String) {
         viewModelScope.launch {
@@ -215,6 +258,23 @@ class InteractionViewModel @Inject constructor(
         }
     }
 
+    fun postMovieToTrailer(movieId: String) {
+        viewModelScope.launch {
+            _uiStateAction.value = AppState(isLoading = true)
+
+            when (movieRepositoryImpl.postMovieToTrailers(movieId)) {
+                is ApiResult.Success -> {
+                    _uiStateAction.value =
+                        AppState(success = true)
+                    getMoviesTrailer()
+                }
+
+                is ApiResult.Error -> {
+                }
+            }
+        }
+    }
+
     fun onDelete() {
         val filter = selectedMovie.value
         val id = filter.id
@@ -225,15 +285,12 @@ class InteractionViewModel @Inject constructor(
         when {
             filter.isWatching -> {
                 deleteMovieToWatchList(dataMovieId)
-
             }
 
             filter.type == ProfileTitleFull.LIKE.slug -> deleteMovieToLike(id)
             filter.type == ProfileTitleFull.TRAILER.slug -> deleteMovieToTrailer(id)
             filter.type == ProfileTitleFull.MY_LIST.slug -> deleteMovieFromMyList(id)
         }
-
-        closeSheet()
     }
 
 
@@ -306,6 +363,70 @@ class InteractionViewModel @Inject constructor(
                     _uiStateAction.value = AppState(success = false, message = "Xóa thất bại")
                 }
             }
+        }
+    }
+
+    private val _response = MutableStateFlow<String>("")
+    val response = _response.asStateFlow()
+
+    private val _listResponse = MutableStateFlow<List<String>>(emptyList())
+    val listResponse = _listResponse.asStateFlow()
+
+    private val _listRequest = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val listRequest = _listRequest.asStateFlow()
+
+    fun addRequest(chatMessage: ChatMessage) {
+        _listRequest.value += chatMessage
+    }
+
+    fun addResponse(response: String) {
+        _listResponse.value += response
+    }
+
+    @OptIn(UnstableApi::class)
+    fun chat(message: String?, file: File?) {
+        viewModelScope.launch {
+            _uiStateAction.value = AppState(isLoading = true, success = false)
+            when (message) {
+                null -> {
+                    val filePart = MultipartBody.Part.createFormData(
+                        "file", file?.name, file!!.asRequestBody("image/*".toMediaTypeOrNull())
+                    )
+                    when (val result = movieRepositoryImpl.chat(message = null, file = filePart)) {
+                        is ApiResult.Success -> {
+                            _uiStateAction.value =
+                                AppState(success = true, isLoading = false)
+                            _response.value = result.data.result
+                            addResponse(result.data.result)
+                            Log.d("CHAT", result.data.result)
+                        }
+
+                        is ApiResult.Error -> {
+                            _response.value = "Không xác định được"
+
+                        }
+                    }
+
+                }
+
+                else -> {
+                    when (val result = movieRepositoryImpl.chat(message = message, file = null)) {
+                        is ApiResult.Success -> {
+                            _uiStateAction.value =
+                                AppState(success = true)
+                            _response.value = result.data.result
+                            addResponse(result.data.result)
+
+                        }
+
+                        is ApiResult.Error -> {
+                            _response.value = "Không xác định được"
+
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

@@ -11,9 +11,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.movieseeme.domain.model.enum.MovieHomeOption
+import com.example.movieseeme.domain.enum_class.MovieHomeOption
 import com.example.movieseeme.presentation.components.movies.item.home.ItemOnHomeOption
-import com.example.movieseeme.presentation.viewmodels.movie.HomeViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.home.HomeViewModel
 
 
 @Composable

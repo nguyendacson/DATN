@@ -14,33 +14,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.movieseeme.domain.model.movie.MovieWatching
 import com.example.movieseeme.presentation.components.movies.item.profile.item.ContentMovie
-import com.example.movieseeme.presentation.components.movies.item.profile.item.mv.ImageMovie
+import com.example.movieseeme.presentation.components.movies.item.profile.item.mvWatching.ImageMovieWatching
 
 @Composable
 fun ItemFullListWatchingProfile(
     modifier: Modifier,
-    movie: MovieWatching,
-    itemClick: (String) -> Unit,
+    movieWatching: MovieWatching,
+    itemClick: (MovieWatching) -> Unit,
     optionClick: (MovieWatching) -> Unit
 
 ) {
     Box(
         modifier = modifier
             .height(85.dp)
-            .clickable { itemClick(movie.id) },
+            .clickable { itemClick(movieWatching) },
         contentAlignment = Alignment.Center
     ) {
-        val movieDTO = movie.movieDTO
+        val movieDTO = movieWatching.movieDTO
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
 
         ) {
-            ImageMovie(
+            ImageMovieWatching(
                 modifier = Modifier.fillMaxHeight(),
-                movieDTO = movieDTO,
-                detailClick = { itemClick(movie.id) }
+                movieWatching = movieWatching,
+                progressSeconds = movieWatching.progressSeconds,
+                detailClick = { itemClick(movieWatching) }
             )
 
             Box(modifier = Modifier
@@ -49,9 +50,9 @@ fun ItemFullListWatchingProfile(
                 ContentMovie(
                     modifier = Modifier,
                     movieDTO = movieDTO,
-                    nameMovie = movie.dataMovieName,
-                    detailClick = { itemClick(movie.id) },
-                    optionClick = { optionClick(movie) }
+                    nameMovie = movieWatching.dataMovieName,
+                    detailClick = { itemClick(movieWatching) },
+                    optionClick = { optionClick(movieWatching) }
                 )
             }
         }

@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import com.example.movieseeme.data.remote.model.systemTheme.ThemeMode
 import com.example.movieseeme.presentation.components.movies.item.RowHeader
 import com.example.movieseeme.presentation.components.movies.item.setting.RowItemTextSetting
-import com.example.movieseeme.presentation.viewmodels.user.ThemeViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.ThemeViewModel
 
 @Composable
 fun GeneralScreen(

@@ -13,7 +13,7 @@ import com.example.movieseeme.data.local.SplashViewModel
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.screens.login.LoginScreen
 import com.example.movieseeme.presentation.screens.signUp.SignUpScreen
-import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.AuthViewModel
 
 @Composable
 fun AppNavHost(

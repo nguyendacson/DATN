@@ -30,7 +30,7 @@ fun RowMovieWatching(
     moreClick: () -> Unit,
     moviesWatching: List<MovieWatching>,
     optionClick: (MovieWatching) -> Unit,
-    detailClick: (String) -> Unit
+    detailClick: (MovieWatching) -> Unit
 ) {
     Column(modifier = Modifier) {
         Row(
@@ -64,7 +64,7 @@ fun RowMovieWatching(
                     MovieWatchingProfile(
                         movieWatching = data,
                         optionClick = { optionClick(data) },
-                        detailClick = { detailClick(data.id) }
+                        detailClick = { detailClick(data) }
                     )
                 }
             }

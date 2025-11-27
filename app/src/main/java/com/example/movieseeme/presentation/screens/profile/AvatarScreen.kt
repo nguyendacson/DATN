@@ -32,7 +32,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.movieseeme.presentation.components.CustomButton
 import com.example.movieseeme.presentation.theme.extension.titleHeader2
-import com.example.movieseeme.presentation.viewmodels.user.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 
 @Composable
 fun AvatarScreen(

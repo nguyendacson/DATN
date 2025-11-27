@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,14 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.movieseeme.domain.model.enum.HomeTitleFull
+import com.example.movieseeme.domain.enum_class.HomeTitleFull
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.components.movies.lazy.HomeBannerPager
 import com.example.movieseeme.presentation.components.movies.lazy.HomeOption
 import com.example.movieseeme.presentation.components.movies.lazy.RowItemImage
-import com.example.movieseeme.presentation.screens.HeaderScreen
-import com.example.movieseeme.presentation.screens.setting_screen.LockScreenOrientationPortrait
-import com.example.movieseeme.presentation.viewmodels.movie.HomeViewModel
+import com.example.movieseeme.presentation.components.header.HeaderScreen
+import com.example.movieseeme.presentation.components.lock_screen.LockScreenOrientationPortrait
+import com.example.movieseeme.presentation.viewmodels.movie.home.HomeViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -41,7 +42,16 @@ fun HomeScreen(
     LockScreenOrientationPortrait()
     val movieState by homeViewModel.uiState.collectAsState()
     val myListState by interactionViewModel.uiStateAction.collectAsState()
-
+    val movies by homeViewModel.listMovieHomeFilter.collectAsState()
+    val movieAction by homeViewModel.listMovieAction.collectAsState()
+    val movieAnime by homeViewModel.listMovieAnime.collectAsState()
+    val movieAnique by homeViewModel.listMovieAntique.collectAsState()
+    val movieFantasy by homeViewModel.listMovieFantasy.collectAsState()
+    val movieHistory by homeViewModel.listMovieHistory.collectAsState()
+    val pagerState = rememberPagerState(
+        initialPage = Int.MAX_VALUE / 2,
+        pageCount = { Int.MAX_VALUE }
+    )
 
     var showToast by remember { mutableStateOf(false) }
     var toastMessage by remember { mutableStateOf("") }
@@ -69,18 +79,6 @@ fun HomeScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            val movies by homeViewModel.listMovieHomeFilter.collectAsState()
-            val movieAction by homeViewModel.listMovieAction.collectAsState()
-            val movieAnime by homeViewModel.listMovieAnime.collectAsState()
-            val movieAnique by homeViewModel.listMovieAntique.collectAsState()
-            val movieFantasy by homeViewModel.listMovieFantasy.collectAsState()
-            val movieHistory by homeViewModel.listMovieHistory.collectAsState()
-            val scrollState = rememberLazyListState()
-            val pagerState = rememberPagerState(
-                initialPage = Int.MAX_VALUE / 2,
-                pageCount = { Int.MAX_VALUE }
-            )
-
             if (movies.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
@@ -92,7 +90,9 @@ fun HomeScreen(
                             clickMyList = { id ->
                                 interactionViewModel.postMovieToMyList(id)
                             },
-                            clickPlay = {}
+                            clickPlay = { id ->
+                                navController.navigate("detailScreen/${id}")
+                            }
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
@@ -108,7 +108,8 @@ fun HomeScreen(
                         RowItemImage(
                             value = category.nameTitle,
                             moreClick = { navController.navigate("fullMovie/${category.slug}") },
-                            movies = movieList.take(10)
+                            movies = movieList.take(10),
+                            onClick = {navController.navigate("detailScreen/${it}")}
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
@@ -129,7 +130,7 @@ fun HomeScreen(
                     value = toastMessage,
                     onDismiss = {
                         showToast = false
-                        interactionViewModel.clearMessage() // bây giờ mới reset
+                        interactionViewModel.clearMessage()
                     }
                 )
             }

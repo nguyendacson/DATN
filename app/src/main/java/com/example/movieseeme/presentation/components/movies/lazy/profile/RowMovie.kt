@@ -31,6 +31,7 @@ fun RowMovie(
     title: String,
     moreClick: () -> Unit,
     optionClick: (MovieDTO) -> Unit,
+    detailClick: (String) -> Unit,
     movieDTO: List<MovieDTO>
 ) {
     Column(modifier = Modifier) {
@@ -66,7 +67,7 @@ fun RowMovie(
                     MovieProfile(
                         movieDTO = data,
                         optionClick = { optionClick(data) },
-                        detailClick = { data.id }
+                        detailClick = { detailClick(it) }
                     )
                 }
             }

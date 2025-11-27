@@ -32,7 +32,7 @@ fun MovieProfile(
             ImageMovie(
                 modifier = Modifier.fillMaxSize(),
                 movieDTO = movieDTO,
-                detailClick = { detailClick(movieDTO.id) }
+                detailClick = { detailClick(it) }
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -40,7 +40,7 @@ fun MovieProfile(
                 modifier = Modifier.fillMaxWidth(),
                 movieDTO = movieDTO,
                 nameMovie = movieDTO.name,
-                detailClick = { detailClick(movieDTO.id) },
+                detailClick = { detailClick(it) },
                 optionClick = { optionClick(movieDTO) }
             )
         }
