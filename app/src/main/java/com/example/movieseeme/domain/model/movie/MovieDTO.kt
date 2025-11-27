@@ -12,9 +12,12 @@ data class MovieDTO(
     @SerializedName("thumb_url") val thumbUrl: String,
     @SerializedName("episode_current") val episodeCurrent: String,
     @SerializedName("episode_total") val episodeTotal: String,
+    @SerializedName("trailer_url") val trailerUrl: String,
     val time: String,
     val content: String,
+    val status: String,
     val year: String,
     val quality: String,
-    val directors: Set<Director>
+    val directors: Set<Director>,
+    val categories: Set<CategoryDTO>
 )

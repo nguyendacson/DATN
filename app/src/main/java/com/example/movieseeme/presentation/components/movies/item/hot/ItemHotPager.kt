@@ -44,7 +44,7 @@ fun ItemHotPage(
     modifier: Modifier,
     textNumber: String?,
     movie: MovieDTO,
-    playClick: () -> Unit,
+    playClick: (String) -> Unit,
     myListClick: (String) -> Unit
 ) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -161,7 +161,7 @@ fun ItemHotPage(
                             itemIcon = Icons.Default.PlayArrow,
                             contentIcon = "xem",
                             shape = 8,
-                            onClick = playClick,
+                            onClick = {playClick(movie.id)},
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         ItemOnPager(

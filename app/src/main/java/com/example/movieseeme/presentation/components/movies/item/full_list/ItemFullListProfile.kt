@@ -39,7 +39,7 @@ fun ItemFullListProfile(
             ImageMovie(
                 modifier = Modifier.fillMaxHeight(),
                 movieDTO = movie,
-                detailClick = { itemClick(movie.id) }
+                detailClick = { itemClick(it) }
             )
 
             Box(modifier = Modifier
@@ -49,7 +49,7 @@ fun ItemFullListProfile(
                     modifier = Modifier,
                     movieDTO = movie,
                     nameMovie = movie.name,
-                    detailClick = { itemClick(movie.id) },
+                    detailClick = { itemClick(it) },
                     optionClick = { optionClick(movie) }
                 )
             }

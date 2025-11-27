@@ -3,10 +3,10 @@ package com.example.movieseeme.data.repository
 import com.example.movieseeme.data.remote.api.UserAPI
 import com.example.movieseeme.data.remote.model.ApiResponse
 import com.example.movieseeme.data.remote.model.ApiResult
-import com.example.movieseeme.data.remote.model.auth.UploadResponse
 import com.example.movieseeme.data.remote.model.request.AvatarRequest
 import com.example.movieseeme.data.remote.model.request.ChangePasswordRequest
 import com.example.movieseeme.data.remote.model.request.UserUpdateRequest
+import com.example.movieseeme.data.remote.model.request.auth.UploadResponse
 import com.example.movieseeme.domain.model.user.InformationUser
 import com.example.movieseeme.domain.model.user.Signature
 import com.example.movieseeme.domain.repository.UserRepository

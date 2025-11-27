@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -89,4 +90,14 @@ dependencies {
 
     // image url
     implementation(libs.coil.compose)
+
+    // YouTube
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1")
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:chromecast-sender:0.28")
+
+    // media3
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
+    implementation(libs.media3.exoplayer.hls)
+    implementation("androidx.media3:media3-session:1.8.0")
 }

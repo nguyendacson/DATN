@@ -23,19 +23,21 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.example.movieseeme.domain.model.movie.MovieDTO
+import com.example.movieseeme.domain.model.movie.MovieWatching
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.theme.extension.titleHeader2
 
 @Composable
 fun ImageMovieWatching(
     modifier: Modifier,
-    movieDTO: MovieDTO,
+    movieWatching: MovieWatching,
     progressSeconds: Int,
-    detailClick: (String) -> Unit,
+    detailClick: (MovieWatching) -> Unit,
 ) {
     Box(
         modifier = modifier
     ) {
+        val movieDTO = movieWatching.movieDTO
         val duration = movieDTO.time.replace(" ", "")
         val minutesPerEpisode = duration.filter { it.isDigit() }.toInt()
         val percent =
@@ -54,7 +56,7 @@ fun ImageMovieWatching(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { detailClick(movieDTO.id) }
+                    .clickable { detailClick(movieWatching) }
                     .constrainAs(container) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)

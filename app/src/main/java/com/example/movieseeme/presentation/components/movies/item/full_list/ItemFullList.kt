@@ -44,7 +44,7 @@ fun ItemFullList(
     movie: MovieDTO,
     isEpisode: Boolean = true,
     isIcon: Boolean = true,
-    itemClick: () -> Unit
+    itemClick: (String) -> Unit
 ) {
     val bg = MaterialTheme.colorScheme.background
     val fg = MaterialTheme.colorScheme.onBackground
@@ -63,7 +63,7 @@ fun ItemFullList(
                 color = mixedColor,
                 shape = RoundedCornerShape(9.dp)
             )
-            .clickable{ itemClick() },
+            .clickable{ itemClick(movie.id) },
         contentAlignment = Alignment.Center
     ) {
         Row(

@@ -1,5 +1,6 @@
 package com.example.movieseeme.presentation.navigation
 
+import EpisodeScreen
 import OptionCategory
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -7,12 +8,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.movieseeme.presentation.screens.FullListProfile
-import com.example.movieseeme.presentation.screens.FullMovieScreen
-import com.example.movieseeme.presentation.screens.HomeNavigation
-import com.example.movieseeme.presentation.screens.SearchScreen
+import com.example.movieseeme.presentation.screens.setting.InformationAppScreen
+import com.example.movieseeme.presentation.screens.help.ChatScreen
+import com.example.movieseeme.presentation.screens.detail.DetailScreen
+import com.example.movieseeme.presentation.screens.full_list.FullListProfile
+import com.example.movieseeme.presentation.screens.full_list.FullMovieScreen
 import com.example.movieseeme.presentation.screens.profile.AvatarPicker
 import com.example.movieseeme.presentation.screens.profile.AvatarScreen
+import com.example.movieseeme.presentation.screens.search.SearchScreen
 import com.example.movieseeme.presentation.screens.setting.EmailScreen
 import com.example.movieseeme.presentation.screens.setting.GeneralScreen
 import com.example.movieseeme.presentation.screens.setting.MenuSettingScreen
@@ -20,13 +23,16 @@ import com.example.movieseeme.presentation.screens.setting.MyAccountScreen
 import com.example.movieseeme.presentation.screens.setting.NameScreen
 import com.example.movieseeme.presentation.screens.setting.PasswordScreen
 import com.example.movieseeme.presentation.screens.setting.ThemeSetScreen
-import com.example.movieseeme.presentation.viewmodels.movie.HomeViewModel
-import com.example.movieseeme.presentation.viewmodels.movie.HotViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.AuthViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.ThemeViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.CommentViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.EpisodeViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
-import com.example.movieseeme.presentation.viewmodels.movie.SearchViewModel
-import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
-import com.example.movieseeme.presentation.viewmodels.user.ThemeViewModel
-import com.example.movieseeme.presentation.viewmodels.user.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.detail.DetailViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.home.HomeViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.hot_new.HotViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.search.SearchViewModel
 
 @Composable
 fun HomeNavHost(
@@ -39,6 +45,9 @@ fun HomeNavHost(
     val userViewModel: UserViewModel = hiltViewModel()
     val themeViewModel: ThemeViewModel = hiltViewModel()
     val hotViewModel: HotViewModel = hiltViewModel()
+    val detailViewModel: DetailViewModel = hiltViewModel()
+    val commentViewModel: CommentViewModel = hiltViewModel()
+    val episodeViewModel: EpisodeViewModel = hiltViewModel()
 
     val homeNavController = rememberNavController()
 
@@ -47,7 +56,7 @@ fun HomeNavHost(
         startDestination = "home_main"
     ) {
         composable("home_main") {
-            HomeNavigation(
+            HomeMainNavHost(
                 homeNavController,
                 homeViewModel = homeViewModel,
                 hotViewModel = hotViewModel,
@@ -89,6 +98,33 @@ fun HomeNavHost(
             )
         }
 
+        composable("detailScreen/{movieId}") { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getString("movieId") ?: ""
+            DetailScreen(
+                movieId = movieId,
+                detailViewModel = detailViewModel,
+                interactionViewModel = interactionViewModel,
+                commentViewModel = commentViewModel,
+                userViewModel = userViewModel,
+                navController = homeNavController
+            )
+        }
+
+        composable("episode?movieId={movieId}&episodeId={episodeId}") { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getString("movieId") ?: ""
+            val episodeId = backStackEntry.arguments?.getString("episodeId") ?: ""
+            EpisodeScreen(
+                movieId = movieId,
+                episodeId = episodeId,
+                episodeViewModel = episodeViewModel,
+                interactionViewModel = interactionViewModel,
+                commentViewModel = commentViewModel,
+                userViewModel = userViewModel,
+                detailViewModel = detailViewModel,
+                navController = homeNavController
+            )
+        }
+
         composable("avatar") {
             AvatarScreen(
                 navController = homeNavController,
@@ -106,6 +142,7 @@ fun HomeNavHost(
         composable("menu_setting") {
             MenuSettingScreen(
                 navController = homeNavController,
+                interactionViewModel = interactionViewModel
             )
         }
 
@@ -148,6 +185,19 @@ fun HomeNavHost(
             PasswordScreen(
                 navController = homeNavController,
                 userViewModel = userViewModel
+            )
+        }
+
+        composable("help") {
+            ChatScreen(
+                navController = homeNavController,
+                interactionViewModel = interactionViewModel
+            )
+        }
+
+        composable("information_app") {
+            InformationAppScreen(
+                navController = homeNavController
             )
         }
 

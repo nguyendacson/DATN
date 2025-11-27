@@ -17,6 +17,7 @@ import com.example.movieseeme.presentation.components.movies.item.hot.ItemHotPag
 fun HotBannerPager(
     modifier: Modifier,
     movies: List<MovieDTO>,
+    playClick: (String) -> Unit,
     myListClick: (String) -> Unit,
 ) {
     LazyColumn(
@@ -31,7 +32,7 @@ fun HotBannerPager(
                 modifier = Modifier.fillMaxSize(),
                 textNumber = number,
                 movie = item,
-                playClick = {},
+                playClick = {playClick(it)},
                 myListClick = {myListClick(item.id)}
             )
         }

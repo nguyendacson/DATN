@@ -11,7 +11,13 @@ import com.example.movieseeme.domain.model.movie.MovieDTO
 import com.example.movieseeme.presentation.components.movies.item.full_list.ItemFullList
 
 @Composable
-fun ColumItemFull(modifier: Modifier, movies: List<MovieDTO>, isEpisode: Boolean, isIcon: Boolean) {
+fun ColumItemFull(
+    modifier: Modifier,
+    movies: List<MovieDTO>,
+    isEpisode: Boolean,
+    onClick:(String)-> Unit,
+    isIcon: Boolean
+) {
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(15.dp)
@@ -21,7 +27,7 @@ fun ColumItemFull(modifier: Modifier, movies: List<MovieDTO>, isEpisode: Boolean
                 modifier = Modifier.fillMaxWidth(),
                 isEpisode = isEpisode,
                 isIcon = isIcon,
-                itemClick = {},
+                itemClick = {onClick(it)},
                 movie = data,
             )
         }

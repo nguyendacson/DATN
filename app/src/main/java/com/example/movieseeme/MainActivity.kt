@@ -1,5 +1,8 @@
 package com.example.movieseeme
 
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,15 +23,34 @@ class MainActivity : ComponentActivity() {
     lateinit var sessionManager: SessionManager
     private val themeDataStore by lazy { ThemeDataStore(this) }
 
+    private var canEnterPip = false
+
+    fun setPipEnabled(enabled: Boolean) {
+        canEnterPip = enabled
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val params = PictureInPictureParams.Builder()
+                .setAutoEnterEnabled(enabled)
+                .build()
+            setPictureInPictureParams(params)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val themeMode by themeDataStore.themeFlow.collectAsState(initial = ThemeMode.SYSTEM)
-
             MovieSeeMeTheme(themeMode = themeMode) {
                 AppNavHost(sessionManager = sessionManager)
             }
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (canEnterPip) {
+            val params = PictureInPictureParams.Builder().build()
+            enterPictureInPictureMode(params)
         }
     }
 }

@@ -1,12 +1,12 @@
 package com.example.movieseeme.data.remote.api
 
 import com.example.movieseeme.data.remote.model.ApiResponse
-import com.example.movieseeme.data.remote.model.auth.UploadResponse
 import com.example.movieseeme.data.remote.model.request.AvatarRequest
 import com.example.movieseeme.data.remote.model.request.ChangePasswordRequest
 import com.example.movieseeme.data.remote.model.request.UserUpdateRequest
-import com.example.movieseeme.domain.model.user.Signature
+import com.example.movieseeme.data.remote.model.request.auth.UploadResponse
 import com.example.movieseeme.domain.model.user.InformationUser
+import com.example.movieseeme.domain.model.user.Signature
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -17,7 +17,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface UserAPI {
     @GET("users/myInfo")

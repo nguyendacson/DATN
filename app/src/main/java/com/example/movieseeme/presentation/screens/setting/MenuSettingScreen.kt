@@ -1,5 +1,6 @@
 package com.example.movieseeme.presentation.screens.setting
 
+import CustomToast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,12 +40,27 @@ import androidx.navigation.NavController
 import com.example.movieseeme.presentation.components.movies.item.RowHeader
 import com.example.movieseeme.presentation.components.movies.item.setting.RowItemSetting
 import com.example.movieseeme.presentation.theme.extension.titleHeader2
+import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
 
 
 @Composable
 fun MenuSettingScreen(
-    navController: NavController
+    navController: NavController,
+    interactionViewModel: InteractionViewModel
 ) {
+    val interactionState by interactionViewModel.uiStateAction.collectAsState()
+
+    var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(interactionState.message) {
+        val msg = interactionState.message
+        if (msg != null && msg != toastMessage) {
+            toastMessage = msg
+            showToast = true
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -84,7 +106,9 @@ fun MenuSettingScreen(
                     title = "Chuyển đổi tài khoản",
                     icon = Icons.Default.SwitchAccount,
                     contentDescription = "Icon switchAccount",
-                    click = {},
+                    click = {
+                        interactionViewModel.setMessage("Đang phát triển")
+                    },
                 )
 
                 RowItemSetting(
@@ -100,7 +124,9 @@ fun MenuSettingScreen(
                     title = "Thông báo",
                     icon = Icons.Default.Notifications,
                     contentDescription = "Icon myAccount",
-                    click = {},
+                    click = {
+                        interactionViewModel.setMessage("Đang phát triển")
+                    },
                 )
             }
 
@@ -131,7 +157,9 @@ fun MenuSettingScreen(
                     title = "Trợ giúp",
                     icon = Icons.AutoMirrored.Filled.Help,
                     contentDescription = "Icon help",
-                    click = {},
+                    click = {
+                        navController.navigate("help")
+                    },
                 )
 
                 RowItemSetting(
@@ -139,7 +167,9 @@ fun MenuSettingScreen(
                     title = "Gửi phản hồi",
                     icon = Icons.Default.Feedback,
                     contentDescription = "Icon feedback",
-                    click = {},
+                    click = {
+                        interactionViewModel.setMessage("Đang phát triển")
+                    },
                 )
 
                 RowItemSetting(
@@ -147,9 +177,26 @@ fun MenuSettingScreen(
                     title = "Thông tin",
                     icon = Icons.Default.Info,
                     contentDescription = "Icon Info",
-                    click = {},
+                    click = {
+                        navController.navigate("information_app")
+                    },
                 )
 
+            }
+        }
+
+        if (showToast && toastMessage.isNotEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                CustomToast(
+                    value = toastMessage,
+                    onDismiss = {
+                        showToast = false
+                        interactionViewModel.clearMessage()
+                    }
+                )
             }
         }
     }

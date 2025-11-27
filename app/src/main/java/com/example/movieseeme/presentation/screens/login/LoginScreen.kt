@@ -53,16 +53,16 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.example.movieseeme.R
-import com.example.movieseeme.data.remote.model.auth.LoginRequest
+import com.example.movieseeme.data.remote.model.request.auth.LoginRequest
 import com.example.movieseeme.data.remote.model.state.user.LoginEvent
 import com.example.movieseeme.presentation.components.CustomButton
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.components.TextErrorInput
 import com.example.movieseeme.presentation.components.user.ShadowTextField
-import com.example.movieseeme.presentation.screens.setting_screen.LockScreenOrientationPortrait
+import com.example.movieseeme.presentation.components.lock_screen.LockScreenOrientationPortrait
 import com.example.movieseeme.presentation.theme.extension.titleHeader
 import com.example.movieseeme.presentation.theme.extension.titleHeader1
-import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.AuthViewModel
 import kotlin.math.roundToInt
 
 @SuppressLint("ConfigurationScreenWidthHeight", "ContextCastToActivity")

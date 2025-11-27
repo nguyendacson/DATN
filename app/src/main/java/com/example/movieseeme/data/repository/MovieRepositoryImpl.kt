@@ -3,13 +3,20 @@ package com.example.movieseeme.data.repository
 import com.example.movieseeme.data.remote.api.MovieAPI
 import com.example.movieseeme.data.remote.model.ApiResponse
 import com.example.movieseeme.data.remote.model.ApiResult
-import com.example.movieseeme.domain.model.enum.ProfileTitleFull
+import com.example.movieseeme.data.remote.model.request.WatchingCreateRequest
+import com.example.movieseeme.data.remote.model.request.WatchingUpdateRequest
+import com.example.movieseeme.data.remote.model.request.comment.CommentCreateRequest
+import com.example.movieseeme.data.remote.model.request.comment.CommentPatchRequest
 import com.example.movieseeme.domain.model.movie.Category
+import com.example.movieseeme.domain.model.movie.Comment
+import com.example.movieseeme.domain.model.movie.Episode
 import com.example.movieseeme.domain.model.movie.MovieDTO
 import com.example.movieseeme.domain.model.movie.MovieWatching
 import com.example.movieseeme.domain.repository.MovieRepository
 import com.google.gson.Gson
+import okhttp3.MultipartBody
 import retrofit2.Response
+import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
@@ -36,7 +43,7 @@ class MovieRepositoryImpl @Inject constructor(
                     null
                 }
                 ApiResult.Error(
-                    code = response.code(),
+                    code = errorResponse?.code ?: response.code(),
                     message = errorResponse?.message ?: "Unknown error"
                 )
             }
@@ -111,6 +118,20 @@ class MovieRepositoryImpl @Inject constructor(
     //    WATCHING
     override suspend fun getMoviesWatching(): ApiResult<ApiResponse<List<MovieWatching>>> {
         return safeApiCall { movieAPI.getMoviesWatching() }
+    }
+
+    override suspend fun updateWatching(watchingUpdateRequest: WatchingUpdateRequest): ApiResult<ApiResponse<String>> {
+        return safeApiCall {
+            movieAPI.updateWatching(watchingUpdateRequest)
+        }
+    }
+
+    override suspend fun postMoviesWatching(watchingCreateRequest: WatchingCreateRequest): ApiResult<ApiResponse<String>> {
+        return safeApiCall {
+            movieAPI.postMoviesWatching(
+                watchingCreateRequest = watchingCreateRequest
+            )
+        }
     }
 
     override suspend fun deleteWatching(
@@ -212,4 +233,78 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
+    //    Detail
+    override suspend fun getMovieById(movieId: String): ApiResult<ApiResponse<MovieDTO>> {
+        return safeApiCall {
+            movieAPI.getMovieById(
+                movieId = movieId
+            )
+        }
+    }
+
+    override suspend fun getActorById(movieId: String): ApiResult<ApiResponse<List<String>>> {
+        return safeApiCall {
+            movieAPI.getActorById(
+                movieId = movieId
+            )
+        }
+    }
+
+    override suspend fun postComment(commentRequest: CommentCreateRequest): ApiResult<ApiResponse<String>> {
+        return safeApiCall {
+            movieAPI.postComment(
+                commentRequest = commentRequest
+            )
+        }
+    }
+
+    override suspend fun getComments(
+        movieId: String,
+        sort: String
+    ): ApiResult<ApiResponse<List<Comment>>> {
+        return safeApiCall {
+            movieAPI.getComments(
+                movieId = movieId,
+                sort = sort,
+            )
+        }
+    }
+
+
+    override suspend fun updateComment(commentPatchRequest: CommentPatchRequest): ApiResult<ApiResponse<String>> {
+        return safeApiCall {
+            movieAPI.updateComment(
+                commentPatchRequest = commentPatchRequest
+            )
+        }
+    }
+
+    override suspend fun deleteComment(commentId: String): ApiResult<ApiResponse<String>> {
+        return safeApiCall {
+            movieAPI.deleteComment(
+                commentId = commentId
+            )
+        }
+    }
+
+    // Episode
+    override suspend fun getEpisodes(movieId: String): ApiResult<ApiResponse<List<Episode>>> {
+        return safeApiCall {
+            movieAPI.getEpisodes(
+                movieId = movieId
+            )
+        }
+    }
+
+    override suspend fun chat(
+        file: MultipartBody.Part?,
+        message: String?
+    ): ApiResult<ApiResponse<String>> {
+        return safeApiCall {
+            movieAPI.chat(
+                file = file,
+                message = message
+            )
+        }
+    }
 }

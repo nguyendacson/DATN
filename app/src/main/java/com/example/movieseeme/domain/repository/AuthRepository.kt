@@ -2,10 +2,10 @@ package com.example.movieseeme.domain.repository
 
 import com.example.movieseeme.data.remote.model.ApiResponse
 import com.example.movieseeme.data.remote.model.ApiResult
-import com.example.movieseeme.data.remote.model.auth.LoginRequest
-import com.example.movieseeme.data.remote.model.auth.LoginResponse
-import com.example.movieseeme.data.remote.model.auth.SignUpRequest
-import com.example.movieseeme.data.remote.model.auth.forgot_password.ResetPassRequest
+import com.example.movieseeme.data.remote.model.request.auth.LoginRequest
+import com.example.movieseeme.data.remote.model.request.auth.LoginResponse
+import com.example.movieseeme.data.remote.model.request.auth.SignUpRequest
+import com.example.movieseeme.data.remote.model.request.auth.forgot_password.ResetPassRequest
 import retrofit2.http.Body
 
 interface AuthRepository {

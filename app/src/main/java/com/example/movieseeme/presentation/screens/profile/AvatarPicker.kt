@@ -38,7 +38,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.movieseeme.presentation.components.CustomButton
 import com.example.movieseeme.presentation.components.LoadingBounce
 import com.example.movieseeme.presentation.viewmodels.movie.FileUtils
-import com.example.movieseeme.presentation.viewmodels.user.UserViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 import java.io.File
 
 @Composable
@@ -64,7 +64,6 @@ fun AvatarPicker(
         }
     }
 
-    // Launcher mở gallery
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.movieseeme.data.remote.model.systemTheme.ThemeMode
 import com.example.movieseeme.presentation.components.movies.item.RowHeader
-import com.example.movieseeme.presentation.viewmodels.user.ThemeViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.ThemeViewModel
 import kotlinx.coroutines.launch
 
 @Composable

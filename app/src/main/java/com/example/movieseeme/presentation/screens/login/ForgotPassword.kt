@@ -27,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.movieseeme.data.remote.model.auth.forgot_password.ResetPassRequest
+import com.example.movieseeme.data.remote.model.request.auth.forgot_password.ResetPassRequest
 import com.example.movieseeme.presentation.components.CustomButton
 import com.example.movieseeme.presentation.components.TextErrorInput
 import com.example.movieseeme.presentation.components.user.ShadowTextField
 import com.example.movieseeme.presentation.theme.extension.titleHeader
-import com.example.movieseeme.presentation.viewmodels.user.AuthViewModel
+import com.example.movieseeme.presentation.viewmodels.auth.AuthViewModel
 
 
 @Composable
