@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.movieseeme.presentation.screens.new_hot.NewHotScreen
 import com.example.movieseeme.presentation.screens.profile.ProfileScreen
+import com.example.movieseeme.presentation.viewmodels.admin.AdminViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.home.HomeViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.hot_new.HotViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
@@ -27,7 +28,8 @@ fun HomeMainNavHost(
     homeViewModel: HomeViewModel,
     interactionViewModel: InteractionViewModel,
     hotViewModel: HotViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    adminViewModel: AdminViewModel
 ) {
     val homeNavController = rememberNavController()
     Scaffold(
@@ -46,8 +48,10 @@ fun HomeMainNavHost(
                 composable("home_main") {
                     HomeScreen(
                         homeViewModel = homeViewModel,
+                        userViewModel = userViewModel,
                         interactionViewModel = interactionViewModel,
-                        navController = rootNavController
+                        navController = rootNavController,
+                        adminViewModel = adminViewModel
                     )
                 }
                 composable("new_hot") {

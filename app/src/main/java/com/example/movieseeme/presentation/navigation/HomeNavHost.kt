@@ -23,6 +23,7 @@ import com.example.movieseeme.presentation.screens.setting.MyAccountScreen
 import com.example.movieseeme.presentation.screens.setting.NameScreen
 import com.example.movieseeme.presentation.screens.setting.PasswordScreen
 import com.example.movieseeme.presentation.screens.setting.ThemeSetScreen
+import com.example.movieseeme.presentation.viewmodels.admin.AdminViewModel
 import com.example.movieseeme.presentation.viewmodels.auth.AuthViewModel
 import com.example.movieseeme.presentation.viewmodels.auth.ThemeViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.CommentViewModel
@@ -48,6 +49,7 @@ fun HomeNavHost(
     val detailViewModel: DetailViewModel = hiltViewModel()
     val commentViewModel: CommentViewModel = hiltViewModel()
     val episodeViewModel: EpisodeViewModel = hiltViewModel()
+    val adminViewModel: AdminViewModel = hiltViewModel()
 
     val homeNavController = rememberNavController()
 
@@ -61,7 +63,8 @@ fun HomeNavHost(
                 homeViewModel = homeViewModel,
                 hotViewModel = hotViewModel,
                 interactionViewModel = interactionViewModel,
-                userViewModel = userViewModel
+                userViewModel = userViewModel,
+                adminViewModel = adminViewModel
             )
         }
 

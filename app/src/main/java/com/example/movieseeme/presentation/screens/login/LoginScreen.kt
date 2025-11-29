@@ -300,7 +300,6 @@ fun LoginScreen(
                         value = "Đăng nhập",
                         onClick = {
                             authViewModel.login(LoginRequest(uiState.username, uiState.password))
-
                         },
                         icon = false,
                         contentIcon = "Login with username",

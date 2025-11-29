@@ -254,6 +254,4 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-
-
 }

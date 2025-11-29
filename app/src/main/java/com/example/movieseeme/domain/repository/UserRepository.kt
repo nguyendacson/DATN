@@ -5,11 +5,12 @@ import com.example.movieseeme.data.remote.model.ApiResult
 import com.example.movieseeme.data.remote.model.request.ChangePasswordRequest
 import com.example.movieseeme.data.remote.model.request.UserUpdateRequest
 import com.example.movieseeme.data.remote.model.request.auth.UploadResponse
+import com.example.movieseeme.domain.model.admin.CountMovie
+import com.example.movieseeme.domain.model.admin.DetailUser
 import com.example.movieseeme.domain.model.user.InformationUser
 import com.example.movieseeme.domain.model.user.Signature
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.Part
 
 interface UserRepository {
     suspend fun getMyInfo(): ApiResult<ApiResponse<InformationUser>>
@@ -37,4 +38,19 @@ interface UserRepository {
         body: ChangePasswordRequest
     ): ApiResult<ApiResponse<String>>
 
+    suspend fun getAllUser(): ApiResult<ApiResponse<List<InformationUser>>>
+
+    suspend fun getInfo(key: String): ApiResult<ApiResponse<DetailUser>>
+
+    suspend fun deleteUser(key: String): ApiResult<ApiResponse<String>>
+
+    suspend fun deleteMovie(keySearch: String): ApiResult<ApiResponse<String>>
+
+    suspend fun watchingCount(): ApiResult<ApiResponse<List<CountMovie>>>
+
+    suspend fun likeCount(): ApiResult<ApiResponse<List<CountMovie>>>
+
+    suspend fun updateDataMovie(): ApiResult<ApiResponse<String>>
+
+    suspend fun createDataMovie(): ApiResult<ApiResponse<String>>
 }

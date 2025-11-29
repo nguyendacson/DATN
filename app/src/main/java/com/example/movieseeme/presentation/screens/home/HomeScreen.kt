@@ -1,4 +1,3 @@
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,22 +22,28 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.movieseeme.domain.enum_class.HomeTitleFull
 import com.example.movieseeme.presentation.components.LoadingBounce
+import com.example.movieseeme.presentation.components.header.HeaderScreen
+import com.example.movieseeme.presentation.components.lock_screen.LockScreenOrientationPortrait
 import com.example.movieseeme.presentation.components.movies.lazy.HomeBannerPager
 import com.example.movieseeme.presentation.components.movies.lazy.HomeOption
 import com.example.movieseeme.presentation.components.movies.lazy.RowItemImage
-import com.example.movieseeme.presentation.components.header.HeaderScreen
-import com.example.movieseeme.presentation.components.lock_screen.LockScreenOrientationPortrait
-import com.example.movieseeme.presentation.viewmodels.movie.home.HomeViewModel
+import com.example.movieseeme.presentation.screens.home.admin.HomeAdminScreen
+import com.example.movieseeme.presentation.viewmodels.admin.AdminViewModel
 import com.example.movieseeme.presentation.viewmodels.movie.InteractionViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.home.HomeViewModel
+import com.example.movieseeme.presentation.viewmodels.movie.profile.UserViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
+    userViewModel: UserViewModel,
     interactionViewModel: InteractionViewModel,
-    navController: NavController
+    navController: NavController,
+    adminViewModel: AdminViewModel
 ) {
     LockScreenOrientationPortrait()
+    val user by userViewModel.user.collectAsState()
     val movieState by homeViewModel.uiState.collectAsState()
     val myListState by interactionViewModel.uiStateAction.collectAsState()
     val movies by homeViewModel.listMovieHomeFilter.collectAsState()
@@ -71,54 +75,60 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(start = 15.dp),
                 search = { navController.navigate("search") })
+            if (user?.username == "adminSonnd03") {
+                HomeAdminScreen(
+                    adminViewModel = adminViewModel
+                )
+            } else {
+                HomeOption(
+                    modifier = Modifier.fillMaxWidth(),
+                    navController = navController,
+                    homeViewModel = homeViewModel
+                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-            HomeOption(
-                modifier = Modifier.fillMaxWidth(),
-                navController = navController,
-                homeViewModel = homeViewModel
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (movies.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    item {
-                        HomeBannerPager(
-                            pagerState = pagerState,
-                            movies = movies.take(10),
-                            clickMyList = { id ->
-                                interactionViewModel.postMovieToMyList(id)
-                            },
-                            clickPlay = { id ->
-                                navController.navigate("detailScreen/${id}")
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-
-                    items(HomeTitleFull.entries) { category ->
-                        val movieList = when (category) {
-                            HomeTitleFull.ACTION -> movieAction
-                            HomeTitleFull.CARTOON -> movieAnime
-                            HomeTitleFull.ANTIQUE -> movieAnique
-                            HomeTitleFull.FANTASY -> movieFantasy
-                            HomeTitleFull.HISTORY -> movieHistory
+                if (movies.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        item {
+                            HomeBannerPager(
+                                pagerState = pagerState,
+                                movies = movies.take(10),
+                                clickMyList = { id ->
+                                    interactionViewModel.postMovieToMyList(id)
+                                },
+                                clickPlay = { id ->
+                                    navController.navigate("detailScreen/${id}")
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
-                        RowItemImage(
-                            value = category.nameTitle,
-                            moreClick = { navController.navigate("fullMovie/${category.slug}") },
-                            movies = movieList.take(10),
-                            onClick = {navController.navigate("detailScreen/${it}")}
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
+
+                        items(HomeTitleFull.entries) { category ->
+                            val movieList = when (category) {
+                                HomeTitleFull.ACTION -> movieAction
+                                HomeTitleFull.CARTOON -> movieAnime
+                                HomeTitleFull.ANTIQUE -> movieAnique
+                                HomeTitleFull.FANTASY -> movieFantasy
+                                HomeTitleFull.HISTORY -> movieHistory
+                            }
+                            RowItemImage(
+                                value = category.nameTitle,
+                                moreClick = { navController.navigate("fullMovie/${category.slug}") },
+                                movies = movieList.take(10),
+                                onClick = { navController.navigate("detailScreen/${it}") }
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
                     }
+                }
+
+                if (movieState.isLoading) {
+                    LoadingBounce()
                 }
             }
 
-            if (movieState.isLoading) {
-                LoadingBounce()
-            }
         }
 
         if (showToast && toastMessage.isNotEmpty()) {

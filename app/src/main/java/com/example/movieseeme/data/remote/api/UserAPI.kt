@@ -5,12 +5,15 @@ import com.example.movieseeme.data.remote.model.request.AvatarRequest
 import com.example.movieseeme.data.remote.model.request.ChangePasswordRequest
 import com.example.movieseeme.data.remote.model.request.UserUpdateRequest
 import com.example.movieseeme.data.remote.model.request.auth.UploadResponse
+import com.example.movieseeme.domain.model.admin.CountMovie
+import com.example.movieseeme.domain.model.admin.DetailUser
 import com.example.movieseeme.domain.model.user.InformationUser
 import com.example.movieseeme.domain.model.user.Signature
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -51,4 +54,35 @@ interface UserAPI {
         @Body changePasswordRequest: ChangePasswordRequest
     ): Response<ApiResponse<String>>
 
+    // Admin
+
+    @GET("admin/allUser")
+    suspend fun getAllUser(): Response<ApiResponse<List<InformationUser>>>
+
+    @GET("admin/userInfo/{key}")
+    suspend fun getInfo(
+        @Path("key") key: String
+    ): Response<ApiResponse<DetailUser>>
+
+    @DELETE("admin/deleteUser/{key}")
+    suspend fun deleteUser(
+        @Path("key") key: String
+    ): Response<ApiResponse<String>>
+
+    @GET("admin/watching")
+    suspend fun watchingCount(): Response<ApiResponse<List<CountMovie>>>
+
+    @GET("admin/like")
+    suspend fun likeCount(): Response<ApiResponse<List<CountMovie>>>
+
+    @DELETE("callMovie/deleteCallData/{keySearch}")
+    suspend fun deleteMovie(
+        @Path("keySearch") keySearch: String
+    ): Response<ApiResponse<String>>
+
+    @GET("callMovie/updateCallData")
+    suspend fun updateDataMovie(): Response<ApiResponse<String>>
+
+    @GET("callMovie/createCallData")
+    suspend fun createDataMovie(): Response<ApiResponse<String>>
 }

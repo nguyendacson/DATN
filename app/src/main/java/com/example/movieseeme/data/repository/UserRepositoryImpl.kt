@@ -7,6 +7,8 @@ import com.example.movieseeme.data.remote.model.request.AvatarRequest
 import com.example.movieseeme.data.remote.model.request.ChangePasswordRequest
 import com.example.movieseeme.data.remote.model.request.UserUpdateRequest
 import com.example.movieseeme.data.remote.model.request.auth.UploadResponse
+import com.example.movieseeme.domain.model.admin.CountMovie
+import com.example.movieseeme.domain.model.admin.DetailUser
 import com.example.movieseeme.domain.model.user.InformationUser
 import com.example.movieseeme.domain.model.user.Signature
 import com.example.movieseeme.domain.repository.UserRepository
@@ -134,5 +136,38 @@ class UserRepositoryImpl @Inject constructor(
         return safeApiCallRaw {
             userAPI.changeUserPassword(body)
         }
+    }
+
+    // ADMIN
+    override suspend fun getAllUser(): ApiResult<ApiResponse<List<InformationUser>>> {
+        return safeApiCall { userAPI.getAllUser() }
+    }
+
+    override suspend fun getInfo(key: String): ApiResult<ApiResponse<DetailUser>> {
+        return safeApiCall { userAPI.getInfo(key) }
+    }
+
+    override suspend fun deleteUser(key: String): ApiResult<ApiResponse<String>> {
+        return safeApiCall { userAPI.deleteUser(key) }
+    }
+
+    override suspend fun deleteMovie(keySearch: String): ApiResult<ApiResponse<String>> {
+        return safeApiCall { userAPI.deleteMovie(keySearch) }
+    }
+
+    override suspend fun watchingCount(): ApiResult<ApiResponse<List<CountMovie>>> {
+        return safeApiCall { userAPI.watchingCount() }
+    }
+
+    override suspend fun likeCount(): ApiResult<ApiResponse<List<CountMovie>>> {
+        return safeApiCall { userAPI.likeCount() }
+    }
+
+    override suspend fun updateDataMovie(): ApiResult<ApiResponse<String>> {
+        return safeApiCall { userAPI.updateDataMovie() }
+    }
+
+    override suspend fun createDataMovie(): ApiResult<ApiResponse<String>> {
+        return safeApiCall { userAPI.createDataMovie() }
     }
 }
